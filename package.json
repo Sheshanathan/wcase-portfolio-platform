@@ -1,0 +1,15 @@
+{
+  "name": "wcase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Creator portfolio application with a React frontend and Express API.",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "lint": "npm run lint --prefix frontend",
+    "start": "npm start --prefix backend",
+    "test": "npm test --prefix backend && npm test --prefix frontend"
+  }
+}

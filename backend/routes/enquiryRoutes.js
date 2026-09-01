@@ -1,0 +1,10 @@
+const router = require("express").Router();
+const { submit, list, markRead, remove } = require("../controllers/enquiryController");
+const { protect } = require("../middleware/authMiddleware");
+const rateLimit = require("../middleware/rateLimit");
+router.use(require("../middleware/noQuery"));
+router.post("/public/:slug", rateLimit({ windowMs: 60 * 60 * 1000, max: 8 }), submit);
+router.get("/me", protect, list);
+router.put("/:id/read", protect, markRead);
+router.delete("/:id", protect, remove);
+module.exports = router;

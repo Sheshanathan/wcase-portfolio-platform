@@ -1,0 +1,81 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files and local secrets
+.env
+.env.*
+**/.env
+**/.env.*
+.envrc
+.direnv/
+!.env.example
+!**/.env.example
+
+# Build and test output
+dist/
+build/
+coverage/
+**/dist/
+**/build/
+**/coverage/
+.nyc_output/
+.eslintcache
+*.tsbuildinfo
+
+# Runtime-generated uploads (the placeholder remains versioned)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs and process files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pid
+*.pid.lock
+
+# Package-manager caches
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+
+# OS and editor files
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+# Local database exports and credentials
+dump/
+dumps/
+backups/
+*.bson
+*.dump
+*.archive
+*.sqlite
+*.sqlite3
+*.db
+*.key
+*.p12
+*.pfx
+*.private.pem

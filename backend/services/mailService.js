@@ -1,28 +1,32 @@
-const nodemailer = require("nodemailer");
+const BREVO_EMAIL_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 const BRAND_YELLOW = "#F7C644";
 const CARD_BACKGROUND = BRAND_YELLOW;
-let mailTransporter;
 
 const requireMailConfig = () => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) throw new Error("MAIL_NOT_CONFIGURED");
+    if (!process.env.EMAIL_USER || !process.env.BREVO_API_KEY) throw new Error("MAIL_NOT_CONFIGURED");
 };
 
-const transport = () => {
+const formatRecipient = (recipient) => {
+    if (typeof recipient === "string") return { email: recipient };
+    if (recipient?.address) return { email: recipient.address, ...(recipient.name ? { name: recipient.name } : {}) };
+    throw new Error("MAIL_RECIPIENT_INVALID");
+};
+
+const sendMail = async ({ to, subject, html, text }) => {
     requireMailConfig();
-    if (mailTransporter) return mailTransporter;
-    mailTransporter = nodemailer.createTransport({
-        service: "gmail",
-        pool: true,
-        maxConnections: 2,
-        maxMessages: 50,
-        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    const recipients = (Array.isArray(to) ? to : [to]).map(formatRecipient);
+    const response = await fetch(BREVO_EMAIL_ENDPOINT, {
+        method: "POST",
+        headers: { accept: "application/json", "api-key": process.env.BREVO_API_KEY, "content-type": "application/json" },
+        body: JSON.stringify({ sender: sender(), to: recipients, subject, ...(html ? { htmlContent: html } : {}), ...(text ? { textContent: text } : {}) }),
+        signal: AbortSignal.timeout(15000)
     });
-    return mailTransporter;
+    if (!response.ok) throw new Error("MAIL_DELIVERY_FAILED");
 };
 
 const sender = () => ({
     name: process.env.EMAIL_FROM_NAME || "WCase",
-    address: process.env.EMAIL_USER
+    email: process.env.EMAIL_USER
 });
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
@@ -62,8 +66,8 @@ const sendPasswordReset = async ({ to, resetUrl }) => {
         body: `<p style="margin:0 0 12px;">We received a request to reset the password for your WCase account.</p><p style="margin:0;">This secure link expires in <strong>30 minutes</strong> and can only be used once. If you did not request this, you can safely ignore this email.</p>`,
         action: { label: "Reset Password", url: resetUrl }, logoUrl: assets.logoUrl
     });
-    await transport().sendMail({
-        from: sender(), to, subject: "Reset your WCase password",
+    await sendMail({
+        to, subject: "Reset your WCase password",
         text: `Reset your WCase password using this secure, single-use link within 30 minutes:\n\n${resetUrl}\n\nIf you did not request this, ignore this email.`, html, attachments: assets.attachments
     });
 };
@@ -79,8 +83,8 @@ const sendWelcomeEmail = async ({ to, name }) => {
         action: appUrl ? { label: "Create Your Portfolio", url: `${appUrl}/dashboard` } : null,
         logoUrl: assets.logoUrl
     });
-    await transport().sendMail({
-        from: sender(), to, subject: "Welcome to WCase",
+    await sendMail({
+        to, subject: "Welcome to WCase",
         text: `Welcome to WCase, ${displayName}! Your creator account has been created successfully.${appUrl ? `\n\nOpen your dashboard: ${appUrl}/dashboard` : ""}`,
         html, attachments: assets.attachments
     });
@@ -101,8 +105,8 @@ const sendOtpEmail = async ({ to, otp, purpose, expiresInMinutes = 10 }) => {
         logoUrl: assets.logoUrl,
         footer: `© ${new Date().getFullYear()} WCase · Showcase your work. Share one link.`
     });
-    await transport().sendMail({
-        from: sender(), to,
+    await sendMail({
+        to,
         subject: deleting ? "Confirm deletion of your WCase account" : "Verify your WCase email",
         text: `${heading}\n\n${explanation}\n\nVerification code: ${otp}\n\nThis code expires in ${expiresInMinutes} minutes and can only be used once. If you did not request this, ignore this email.`,
         html, attachments: assets.attachments

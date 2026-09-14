@@ -32,9 +32,9 @@ const validateEnvironment = () => {
     if (production && origins.some((origin) => /:\/\/(localhost|127\.0\.0\.1)(:|$)/i.test(origin))) errors.push("CORS_ORIGINS cannot contain localhost in production");
     if (production && origins.some((origin) => !origin.startsWith("https://"))) errors.push("CORS_ORIGINS must use HTTPS in production");
     if (production && (!process.env.FRONTEND_URL || !validHttpOrigin(process.env.FRONTEND_URL.replace(/\/$/, "")) || !process.env.FRONTEND_URL.startsWith("https://"))) errors.push("FRONTEND_URL must be an explicit HTTPS origin in production");
-    if (production && (!process.env.EMAIL_USER || !process.env.EMAIL_PASS)) errors.push("EMAIL_USER and EMAIL_PASS are required in production");
+    if (production && (!process.env.EMAIL_USER || !process.env.BREVO_API_KEY)) errors.push("EMAIL_USER and BREVO_API_KEY are required in production");
     if (production && process.env.EMAIL_USER && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(process.env.EMAIL_USER)) errors.push("EMAIL_USER must be a valid email address");
-    if (production && process.env.EMAIL_PASS && process.env.EMAIL_PASS.length < 8) errors.push("EMAIL_PASS must contain at least 8 characters");
+    if (production && process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.length < 20) errors.push("BREVO_API_KEY must contain at least 20 characters");
     if (production && (!process.env.OTP_HASH_SECRET || !process.env.MEDIA_SIGNING_SECRET)) errors.push("OTP_HASH_SECRET and MEDIA_SIGNING_SECRET are required separately in production");
     if (!["local", "cloudinary"].includes(mediaStorageProvider)) errors.push("MEDIA_STORAGE_PROVIDER must be local or cloudinary");
     if (mediaStorageProvider === "cloudinary") {
@@ -45,7 +45,7 @@ const validateEnvironment = () => {
     const secrets = [process.env.JWT_SECRET, process.env.OTP_HASH_SECRET, process.env.MEDIA_SIGNING_SECRET].filter(Boolean);
     if (production && new Set(secrets).size !== secrets.length) errors.push("JWT_SECRET, OTP_HASH_SECRET and MEDIA_SIGNING_SECRET must be different values");
     if (production && secrets.some((value) => /replace|change.?me|your[-_ ]/i.test(value))) errors.push("Production secrets cannot use example placeholder values");
-    if (production && [process.env.MONGO_URI, process.env.EMAIL_USER, process.env.EMAIL_PASS].filter(Boolean).some((value) => /replace|change.?me|your[-_ ]|example\.(com|org|net)/i.test(value))) errors.push("Production configuration cannot use example placeholder values");
+    if (production && [process.env.MONGO_URI, process.env.EMAIL_USER, process.env.BREVO_API_KEY].filter(Boolean).some((value) => /replace|change.?me|your[-_ ]|example\.(com|org|net)/i.test(value))) errors.push("Production configuration cannot use example placeholder values");
     const mediaTtl = Number(process.env.MEDIA_URL_TTL_SECONDS || 3600);
     if (!Number.isInteger(mediaTtl) || mediaTtl < 300 || mediaTtl > 86400) errors.push("MEDIA_URL_TTL_SECONDS must be an integer between 300 and 86400");
     const mongoServerSelectionTimeoutMs = Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000);

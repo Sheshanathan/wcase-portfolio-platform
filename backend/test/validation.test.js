@@ -47,7 +47,7 @@ test("upload signature detection matches declared media families", () => {
 });
 
 test("production configuration requires HTTPS and independent non-placeholder secrets", () => {
-    const keys = ["NODE_ENV", "MONGO_URI", "MONGO_SERVER_SELECTION_TIMEOUT_MS", "JWT_SECRET", "JWT_EXPIRES_IN", "OTP_HASH_SECRET", "MEDIA_SIGNING_SECRET", "MEDIA_URL_TTL_SECONDS", "MEDIA_STORAGE_PROVIDER", "CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "EMAIL_USER", "EMAIL_PASS", "PORT", "TRUST_PROXY"];
+    const keys = ["NODE_ENV", "MONGO_URI", "MONGO_SERVER_SELECTION_TIMEOUT_MS", "JWT_SECRET", "JWT_EXPIRES_IN", "OTP_HASH_SECRET", "MEDIA_SIGNING_SECRET", "MEDIA_URL_TTL_SECONDS", "MEDIA_STORAGE_PROVIDER", "CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "EMAIL_USER", "BREVO_API_KEY", "PORT", "TRUST_PROXY"];
     const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
     try {
         Object.assign(process.env, {
@@ -66,7 +66,7 @@ test("production configuration requires HTTPS and independent non-placeholder se
             FRONTEND_URL: "http://localhost:5173",
             CORS_ORIGINS: "http://localhost:5173",
             EMAIL_USER: "operator@wcase.invalid",
-            EMAIL_PASS: "not-a-real-password",
+            BREVO_API_KEY: "replace-with-a-real-brevo-api-key",
             PORT: "5050",
             TRUST_PROXY: "1"
         });
@@ -76,6 +76,7 @@ test("production configuration requires HTTPS and independent non-placeholder se
             JWT_SECRET: "a".repeat(48),
             OTP_HASH_SECRET: "b".repeat(48),
             MEDIA_SIGNING_SECRET: "c".repeat(48),
+            BREVO_API_KEY: "xkeysib-test-key-value-1234567890",
             FRONTEND_URL: "https://wcase.example",
             CORS_ORIGINS: "https://wcase.example"
         });

@@ -7,7 +7,7 @@ WCase is a creator-portfolio application for publishing image and video work, sh
 - React 19, Vite, Tailwind CSS, Axios
 - Node.js 20.19+ and Express 5
 - MongoDB with Mongoose
-- JWT authentication, bcrypt password hashing, email OTP verification, and Nodemailer
+- JWT authentication, bcrypt password hashing, email OTP verification, and Brevo transactional email
 - Local disk uploads for development, with optional Cloudinary-backed production storage
 - Server-side media type, size, ownership, and publication checks
 
@@ -64,8 +64,9 @@ npm audit --prefix frontend
 4. Use Cloudinary or mount `backend/uploads/` on persistent, backed-up storage. The directory is intentionally ignored by Git. Never rely on an ephemeral production filesystem for uploaded media.
 5. Set `CORS_ORIGINS` to comma-separated exact HTTPS origins. Wildcards are rejected. Set `TRUST_PROXY` only to the exact number of trusted reverse-proxy hops so HTTPS detection and IP rate limits remain correct.
 6. Preserve the security headers in `frontend/public/_headers` (or configure equivalents at the CDN/reverse proxy). If using a separate API origin, add only that exact origin to `connect-src`, `img-src`, and `media-src`.
-7. Do not log authorization headers, signed media URLs, reset links, OTPs, request bodies, or environment values at the proxy or application layer.
-8. The built-in rate limiter is appropriate for a single API process. Use a trusted edge or distributed rate-limit store before running multiple API replicas.
+7. Render Free blocks SMTP ports, so production email uses Brevo's HTTPS API. Use a dedicated Brevo API key and verified `EMAIL_USER` sender; never commit the key.
+8. Do not log authorization headers, signed media URLs, reset links, OTPs, request bodies, or environment values at the proxy or application layer.
+9. The built-in rate limiter is appropriate for a single API process. Use a trusted edge or distributed rate-limit store before running multiple API replicas.
 
 Before a public launch, replace the placeholder Privacy Policy and Terms of Service with documents approved for the actual operator, jurisdiction, retention policy, and contact details.
 

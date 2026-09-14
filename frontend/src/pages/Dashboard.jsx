@@ -235,15 +235,33 @@ function Dashboard() {
         setTouched((v) => ({ ...v, portfolio: true }));
         setPortfolioApiErrors({});
         if (portfolioTitleError || portfolioBioError || !portfolioLinksValid || busy || requestLockRef.current) return;
+        const isCreating = !portfolio;
         requestLockRef.current = true;
         setBusy("portfolio"); setMessage("");
         try {
             const baseFields = { title: portfolioForm.title.trim(), bio: portfolioForm.bio.trim() };
-            const response = portfolio
+            const response = !isCreating
                 ? await api.put("/portfolios/me", { ...baseFields, website: portfolioForm.website.trim(), socialLinks: Object.fromEntries(Object.entries(portfolioForm.socialLinks).map(([key, value]) => [key, value.trim()])) })
                 : await api.post("/portfolios", baseFields);
-            setPortfolio(response.data.portfolio); setPortfolioForm(portfolioFormFrom(response.data.portfolio)); setEditingPortfolio(false);
-            setMessage(portfolio ? "Portfolio updated successfully" : "Portfolio created successfully");
+            const savedPortfolio = response.data.portfolio;
+            setPortfolio(savedPortfolio); setPortfolioForm(portfolioFormFrom(savedPortfolio)); setEditingPortfolio(false);
+            if (!isCreating) {
+                setMessage("Portfolio updated successfully");
+                return;
+            }
+            setMessage("Portfolio created successfully. It is private until you publish it.");
+            ask({
+                title: "Publish your portfolio?",
+                message: "Your portfolio was created successfully. Publish it now so people with the public link can view it?",
+                confirmText: "Publish Portfolio",
+                cancelText: "Keep Private",
+                action: async () => {
+                    const publishResponse = await api.put("/portfolios/me", { isPublished: true });
+                    setPortfolio(publishResponse.data.portfolio);
+                    localStorage.setItem("wcasePortfolioChanged", String(Date.now()));
+                    setMessage("Portfolio published successfully");
+                }
+            });
         } catch (error) { setPortfolioApiErrors(apiFieldErrors(error)); setMessage(error.response?.data?.message || "Failed to save portfolio"); }
         finally { requestLockRef.current = false; setBusy(""); }
     };

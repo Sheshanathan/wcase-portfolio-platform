@@ -4,7 +4,7 @@ import { clearSession, getToken, signalExpiredSession } from "./utils/authStorag
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 30_000,
+    timeout: 120_000,
     headers: { Accept: "application/json" }
 });
 

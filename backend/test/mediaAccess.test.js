@@ -3,6 +3,9 @@ const assert = require("node:assert/strict");
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret-that-is-at-least-32-characters";
 process.env.MEDIA_URL_TTL_SECONDS = "3600";
+process.env.CLOUDINARY_CLOUD_NAME = "test-cloud";
+process.env.CLOUDINARY_API_KEY = "123456789";
+process.env.CLOUDINARY_API_SECRET = "test-cloudinary-secret-value";
 
 const {
     signMediaPath,
@@ -38,6 +41,16 @@ test("owner DTO helpers sign only media fields and do not mutate source values",
     assert.match(signedWork.thumbnailPath, /^\/uploads\/thumb\.jpg\?expires=/);
     assert.equal(portfolio.profileImage, "/uploads/profile.png");
     assert.equal(work.filePath, "/uploads/work.mp4");
+});
+
+test("Cloudinary references become signed authenticated HTTPS URLs", () => {
+    const reference = "cloudinary://image/wcase/550e8400-e29b-41d4-a716-446655440000.jpg";
+    const signed = signMediaPath(reference);
+    const parsed = new URL(signed);
+    assert.equal(parsed.protocol, "https:");
+    assert.equal(parsed.hostname, "res.cloudinary.com");
+    assert.match(parsed.pathname, /\/image\/authenticated\/s--[A-Za-z0-9_-]+--\/v\d+\/wcase\/550e8400-e29b-41d4-a716-446655440000\.jpg$/);
+    assert.equal(signed.includes(process.env.CLOUDINARY_API_SECRET), false);
 });
 
 test("unsigned media is available only while its owning content is public", async () => {

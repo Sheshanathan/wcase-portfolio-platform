@@ -147,7 +147,7 @@ export function validateMedia(file) {
     const allowedMimeTypes = imageExtension ? IMAGE_MIME_TYPES : VIDEO_MIME_TYPES;
     if (!allowedMimeTypes.includes(file.type)) return "The file extension and media type do not match";
     if (file.size <= 0) return "The selected file is empty";
-    if (file.size > 200 * 1024 * 1024) return "Media must be 200 MB or smaller";
+    if (file.size > 100 * 1000 * 1000) return "Media must be 100 MB or smaller";
     return "";
 }
 

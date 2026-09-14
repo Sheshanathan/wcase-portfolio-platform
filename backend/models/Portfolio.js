@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { validEmail, validPhone, validSlug, validUrl } = require("../utils/validation");
-const uploadPath = /^\/uploads\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp)$/;
+const { validImageReference } = require("../utils/mediaReference");
 
 const portfolioSchema = new mongoose.Schema(
     {
@@ -60,13 +60,13 @@ const portfolioSchema = new mongoose.Schema(
         profileImage: {
             type: String,
             default: "",
-            validate: { validator: (value) => !value || uploadPath.test(value), message: "Invalid profile image path" }
+            validate: { validator: (value) => !value || validImageReference(value), message: "Invalid profile image path" }
         },
 
         coverImage: {
             type: String,
             default: "",
-            validate: { validator: (value) => !value || uploadPath.test(value), message: "Invalid cover image path" }
+            validate: { validator: (value) => !value || validImageReference(value), message: "Invalid cover image path" }
         },
 
         isPublished: {

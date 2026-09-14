@@ -1,6 +1,8 @@
 const crypto = require("crypto");
+const { getCloudinary } = require("./cloudinaryService");
+const { LOCAL_MEDIA_PATTERN, parseCloudinaryReference } = require("../utils/mediaReference");
 
-const MEDIA_PATH_PATTERN = /^\/uploads\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp|mp4|webm|mov|m4v)$/;
+const MEDIA_PATH_PATTERN = LOCAL_MEDIA_PATTERN;
 const SIGNATURE_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 
 const mediaUrlTtlSeconds = () => {
@@ -20,6 +22,13 @@ const signatureFor = (publicPath, expires) => crypto
     .digest("base64url");
 
 const signMediaPath = (publicPath) => {
+    const cloudAsset = parseCloudinaryReference(publicPath);
+    if (cloudAsset) return getCloudinary().url(`${cloudAsset.publicId}.${cloudAsset.format}`, {
+        resource_type: cloudAsset.resourceType,
+        type: "authenticated",
+        secure: true,
+        sign_url: true
+    });
     if (!MEDIA_PATH_PATTERN.test(publicPath || "")) return publicPath || "";
     const expires = Math.floor(Date.now() / 1000) + mediaUrlTtlSeconds();
     return `${publicPath}?expires=${expires}&signature=${signatureFor(publicPath, expires)}`;

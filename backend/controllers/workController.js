@@ -5,7 +5,7 @@ const {
     WORK_CATEGORIES, cleanText, validObjectId, validSlug, validCategory,
     hasOnlyKeys, parsePagination, fieldError
 } = require("../utils/validation");
-const { removeUpload, removeUploadedRequestFiles } = require("../services/storageService");
+const { removeUpload, persistUploadedFile, removeUploadedRequestFiles } = require("../services/storageService");
 const { withSignedWorkMedia } = require("../services/mediaAccessService");
 
 const WORK_FIELDS = ["title", "description", "category", "projectName", "year", "tags", "isPublished", "featured"];
@@ -93,10 +93,12 @@ const createWork = async (req, res, next) => {
         const thumbnail = req.files.thumbnail?.[0];
         const mediaType = file.mimetype.startsWith("video/") ? "video" : "image";
         const displayOrder = await Work.countDocuments({ portfolio: portfolio._id });
+        const filePath = await persistUploadedFile(file);
+        const thumbnailPath = thumbnail ? await persistUploadedFile(thumbnail) : "";
         const work = await Work.create({
             user: req.user._id, portfolio: portfolio._id, ...checked.out, mediaType,
-            fileName: file.filename, filePath: `/uploads/${file.filename}`, mimeType: file.mimetype,
-            fileSize: file.size, thumbnailPath: thumbnail ? `/uploads/${thumbnail.filename}` : "", displayOrder
+            fileName: file.filename, filePath, mimeType: file.mimetype,
+            fileSize: file.size, thumbnailPath, displayOrder
         });
         res.status(201).json({ success: true, work: withSignedWorkMedia(work) });
     } catch (error) {
@@ -162,7 +164,7 @@ const updateThumbnail = async (req, res, next) => {
         if (found.invalid) { await removeUploadedRequestFiles(req); return res.status(400).json({ success: false, message: "Invalid work ID" }); }
         if (found.forbidden || !found.work) { await removeUploadedRequestFiles(req); return res.status(found.forbidden ? 403 : 404).json({ success: false, message: found.forbidden ? "You do not have permission to modify this work" : "Work not found" }); }
         const old = found.work.thumbnailPath;
-        found.work.thumbnailPath = `/uploads/${req.file.filename}`;
+        found.work.thumbnailPath = await persistUploadedFile(req.file);
         await found.work.save();
         await Promise.allSettled([removeUpload(old)]);
         res.json({ success: true, work: withSignedWorkMedia(found.work) });
@@ -210,7 +212,7 @@ const getPublicWorks = async (req, res, next) => {
         const filter = { portfolio: portfolio._id, isPublished: true };
         if (paging.category) filter.category = paging.category;
         const works = await Work.find(filter).sort({ featured: -1, displayOrder: 1 }).skip((paging.page - 1) * paging.limit).limit(paging.limit).select(publicWorkFields);
-        res.json({ success: true, works });
+        res.json({ success: true, works: works.map(withSignedWorkMedia) });
     } catch (error) { next(error); }
 };
 
@@ -223,7 +225,7 @@ const getPublicWork = async (req, res, next) => {
         const ordered = await Work.find({ portfolio: portfolio._id, isPublished: true }).sort({ featured: -1, displayOrder: 1, createdAt: -1 }).select(publicWorkFields);
         const index = ordered.findIndex((item) => item._id.equals(req.params.id));
         if (index < 0) return res.status(404).json({ success: false, code: "WORK_UNAVAILABLE", message: "Work unavailable" });
-        res.json({ success: true, work: ordered[index], navigation: { previousId: index > 0 ? ordered[index - 1]._id : null, nextId: index < ordered.length - 1 ? ordered[index + 1]._id : null } });
+        res.json({ success: true, work: withSignedWorkMedia(ordered[index]), navigation: { previousId: index > 0 ? ordered[index - 1]._id : null, nextId: index < ordered.length - 1 ? ordered[index + 1]._id : null } });
     } catch (error) { next(error); }
 };
 

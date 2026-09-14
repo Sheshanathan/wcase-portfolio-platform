@@ -47,7 +47,7 @@ test("upload signature detection matches declared media families", () => {
 });
 
 test("production configuration requires HTTPS and independent non-placeholder secrets", () => {
-    const keys = ["NODE_ENV", "MONGO_URI", "MONGO_SERVER_SELECTION_TIMEOUT_MS", "JWT_SECRET", "JWT_EXPIRES_IN", "OTP_HASH_SECRET", "MEDIA_SIGNING_SECRET", "MEDIA_URL_TTL_SECONDS", "FRONTEND_URL", "CORS_ORIGINS", "EMAIL_USER", "EMAIL_PASS", "PORT", "TRUST_PROXY"];
+    const keys = ["NODE_ENV", "MONGO_URI", "MONGO_SERVER_SELECTION_TIMEOUT_MS", "JWT_SECRET", "JWT_EXPIRES_IN", "OTP_HASH_SECRET", "MEDIA_SIGNING_SECRET", "MEDIA_URL_TTL_SECONDS", "MEDIA_STORAGE_PROVIDER", "CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "EMAIL_USER", "EMAIL_PASS", "PORT", "TRUST_PROXY"];
     const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
     try {
         Object.assign(process.env, {
@@ -59,6 +59,10 @@ test("production configuration requires HTTPS and independent non-placeholder se
             OTP_HASH_SECRET: "replace-with-a-random-secret-at-least-32-characters-long",
             MEDIA_SIGNING_SECRET: "replace-with-a-random-secret-at-least-32-characters-long",
             MEDIA_URL_TTL_SECONDS: "3600",
+            MEDIA_STORAGE_PROVIDER: "cloudinary",
+            CLOUDINARY_CLOUD_NAME: "test-cloud",
+            CLOUDINARY_API_KEY: "123456789",
+            CLOUDINARY_API_SECRET: "test-cloudinary-secret-value",
             FRONTEND_URL: "http://localhost:5173",
             CORS_ORIGINS: "http://localhost:5173",
             EMAIL_USER: "operator@wcase.invalid",

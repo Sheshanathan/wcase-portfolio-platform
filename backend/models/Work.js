@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const { validCategory } = require("../utils/validation");
-const mediaPath = /^\/uploads\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp|mp4|webm|mov|m4v)$/;
-const imagePath = /^\/uploads\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp)$/;
+const { validMediaReference, validImageReference } = require("../utils/mediaReference");
 
 const workSchema = new mongoose.Schema(
     {
@@ -37,7 +36,7 @@ const workSchema = new mongoose.Schema(
         projectName: { type: String, trim: true, maxlength: 120, default: "" },
         year: { type: Number, min: 1, default: null },
         tags: { type: [String], validate: [{ validator: (value) => value.length <= 10 && value.every((tag) => typeof tag === "string" && tag.length > 0 && tag.length <= 30), message: "Use at most 10 valid tags" }, { validator: (value) => new Set(value).size === value.length, message: "Tags must be unique" }] },
-        thumbnailPath: { type: String, default: "", validate: { validator: (value) => !value || imagePath.test(value), message: "Invalid thumbnail path" } },
+        thumbnailPath: { type: String, default: "", validate: { validator: (value) => !value || validImageReference(value), message: "Invalid thumbnail path" } },
         featured: { type: Boolean, default: false, index: true },
         displayOrder: { type: Number, min: 0, default: 0, index: true },
         viewCount: { type: Number, default: 0, min: 0 },
@@ -58,7 +57,7 @@ const workSchema = new mongoose.Schema(
         filePath: {
             type: String,
             required: true,
-            match: mediaPath
+            validate: { validator: validMediaReference, message: "Invalid media path" }
         },
 
         mimeType: {

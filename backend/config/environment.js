@@ -17,6 +17,7 @@ const validHttpOrigin = (value) => {
 const validateEnvironment = () => {
     const errors = [];
     const production = process.env.NODE_ENV === "production";
+    const mediaStorageProvider = process.env.MEDIA_STORAGE_PROVIDER || "local";
     if (process.env.NODE_ENV && !["development", "test", "production"].includes(process.env.NODE_ENV)) errors.push("NODE_ENV must be development, test or production");
     if (!process.env.MONGO_URI || !/^mongodb(?:\+srv)?:\/\//.test(process.env.MONGO_URI)) errors.push("MONGO_URI must be a valid MongoDB connection string");
     if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) errors.push("JWT_SECRET must contain at least 32 characters");
@@ -35,6 +36,12 @@ const validateEnvironment = () => {
     if (production && process.env.EMAIL_USER && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(process.env.EMAIL_USER)) errors.push("EMAIL_USER must be a valid email address");
     if (production && process.env.EMAIL_PASS && process.env.EMAIL_PASS.length < 8) errors.push("EMAIL_PASS must contain at least 8 characters");
     if (production && (!process.env.OTP_HASH_SECRET || !process.env.MEDIA_SIGNING_SECRET)) errors.push("OTP_HASH_SECRET and MEDIA_SIGNING_SECRET are required separately in production");
+    if (!["local", "cloudinary"].includes(mediaStorageProvider)) errors.push("MEDIA_STORAGE_PROVIDER must be local or cloudinary");
+    if (mediaStorageProvider === "cloudinary") {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !/^[A-Za-z0-9_-]+$/.test(process.env.CLOUDINARY_CLOUD_NAME)) errors.push("CLOUDINARY_CLOUD_NAME is required for Cloudinary storage");
+        if (!process.env.CLOUDINARY_API_KEY || !/^\d+$/.test(process.env.CLOUDINARY_API_KEY)) errors.push("CLOUDINARY_API_KEY is required for Cloudinary storage");
+        if (!process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET.length < 16) errors.push("CLOUDINARY_API_SECRET is required for Cloudinary storage");
+    }
     const secrets = [process.env.JWT_SECRET, process.env.OTP_HASH_SECRET, process.env.MEDIA_SIGNING_SECRET].filter(Boolean);
     if (production && new Set(secrets).size !== secrets.length) errors.push("JWT_SECRET, OTP_HASH_SECRET and MEDIA_SIGNING_SECRET must be different values");
     if (production && secrets.some((value) => /replace|change.?me|your[-_ ]/i.test(value))) errors.push("Production secrets cannot use example placeholder values");

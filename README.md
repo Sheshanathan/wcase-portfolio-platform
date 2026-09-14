@@ -8,7 +8,8 @@ WCase is a creator-portfolio application for publishing image and video work, sh
 - Node.js 20.19+ and Express 5
 - MongoDB with Mongoose
 - JWT authentication, bcrypt password hashing, email OTP verification, and Nodemailer
-- Disk-backed image/video uploads with server-side type, size, ownership, and publication checks
+- Local disk uploads for development, with optional Cloudinary-backed production storage
+- Server-side media type, size, ownership, and publication checks
 
 ## Local setup
 
@@ -41,6 +42,8 @@ The frontend runs at `http://localhost:5173` by default and calls the API at `ht
 
 Backend variables are documented in `backend/.env.example`. Production requires a MongoDB connection string, three independent signing/hash secrets, an exact frontend/CORS origin allowlist, email credentials, and an appropriate `TRUST_PROXY` value for the deployment topology. Never expose those values through `VITE_*` variables.
 
+For a free Render demo, set `MEDIA_STORAGE_PROVIDER=cloudinary` and configure the three `CLOUDINARY_*` server variables. Cloudinary assets are uploaded with authenticated delivery and API responses contain signed delivery URLs. The Cloudinary API secret must never be added to the frontend or committed to Git. The free-plan media limit is enforced at 100 MB.
+
 Frontend variables are documented in `frontend/.env.example`. In production, the default is a same-origin reverse proxy at `/api` and `/uploads`. If the API is hosted on another origin, set both frontend variables and update the deployed Content Security Policy to allow only that exact API origin.
 
 ## Checks
@@ -58,7 +61,7 @@ npm audit --prefix frontend
 1. Build `frontend/` with `npm run build --prefix frontend` and serve `frontend/dist/` through HTTPS.
 2. Run the API with `NODE_ENV=production npm start --prefix backend` under a process supervisor.
 3. Prefer a same-origin reverse proxy: route `/api` and `/uploads` to the API and all other paths to the frontend SPA. This matches the default production frontend configuration and the supplied static-host `_headers` policy.
-4. Mount `backend/uploads/` on persistent, backed-up storage. The directory is intentionally ignored by Git. A multi-instance deployment needs shared object/file storage before horizontal scaling.
+4. Use Cloudinary or mount `backend/uploads/` on persistent, backed-up storage. The directory is intentionally ignored by Git. Never rely on an ephemeral production filesystem for uploaded media.
 5. Set `CORS_ORIGINS` to comma-separated exact HTTPS origins. Wildcards are rejected. Set `TRUST_PROXY` only to the exact number of trusted reverse-proxy hops so HTTPS detection and IP rate limits remain correct.
 6. Preserve the security headers in `frontend/public/_headers` (or configure equivalents at the CDN/reverse proxy). If using a separate API origin, add only that exact origin to `connect-src`, `img-src`, and `media-src`.
 7. Do not log authorization headers, signed media URLs, reset links, OTPs, request bodies, or environment values at the proxy or application layer.

@@ -34,4 +34,8 @@ export const API_BASE_URL = configuredApi || (import.meta.env.PROD ? "/api" : "h
 const inferredMediaOrigin = API_BASE_URL.startsWith("http") ? new URL(API_BASE_URL).origin : "";
 export const MEDIA_ORIGIN = safeMediaOrigin(import.meta.env.VITE_MEDIA_URL) || inferredMediaOrigin;
 
-export const mediaUrl = (path) => path ? `${MEDIA_ORIGIN}${path}` : "";
+export const mediaUrl = (path) => {
+    if (!path) return "";
+    if (/^https:\/\/res\.cloudinary\.com\//.test(path)) return path;
+    return `${MEDIA_ORIGIN}${path}`;
+};

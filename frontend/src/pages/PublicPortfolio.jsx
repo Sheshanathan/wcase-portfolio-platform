@@ -6,10 +6,9 @@ import PublicNavbar from "../components/PublicNavbar";
 import WorkViewer from "../components/WorkViewer";
 import ShareActions from "../components/ShareActions";
 import ContactForm from "../components/ContactForm";
-import { MEDIA_ORIGIN } from "../config";
+import { mediaUrl } from "../config";
 import { getStoredUser } from "../utils/authStorage";
 
-const mediaUrl = (value) => value ? `${MEDIA_ORIGIN}${value}` : "";
 const VISITOR_PATTERN = /^[A-Za-z0-9_-]{16,80}$/;
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 const WORK_VIEW_COOLDOWN_MS = 30 * 60 * 1000;

@@ -5,7 +5,7 @@ const {
     cleanText, normalizeEmail, validEmail, validUrl, validPhone, validSlug,
     hasOnlyKeys, isPlainObject, parsePagination, fieldError
 } = require("../utils/validation");
-const { removeUpload } = require("../services/storageService");
+const { removeUpload, persistUploadedFile, removeUploadedRequestFiles } = require("../services/storageService");
 const { withSignedPortfolioMedia, withSignedWorkMedia } = require("../services/mediaAccessService");
 
 const PORTFOLIO_FIELDS = ["title", "bio", "speciality", "location", "publicEmail", "publicPhone", "website", "socialLinks", "visibility", "publicSlug", "isPublished"];
@@ -141,14 +141,14 @@ const replaceImage = (field) => async (req, res, next) => {
         if (!hasOnlyKeys(req.body || {}, [])) throw Object.assign(new Error("Upload request contains unsupported fields"), { status: 400 });
         if (!req.file || req.file.size <= 0) return res.status(400).json({ success: false, message: "A valid image is required" });
         const portfolio = await Portfolio.findOne({ user: req.user._id });
-        if (!portfolio) { await removeUpload(`/uploads/${req.file.filename}`); return res.status(404).json({ success: false, message: "Portfolio not found" }); }
+        if (!portfolio) { await removeUploadedRequestFiles(req); return res.status(404).json({ success: false, message: "Portfolio not found" }); }
         const old = portfolio[field];
-        portfolio[field] = `/uploads/${req.file.filename}`;
+        portfolio[field] = await persistUploadedFile(req.file);
         await portfolio.save();
         await Promise.allSettled([removeUpload(old)]);
         res.json({ success: true, portfolio: withSignedPortfolioMedia(portfolio) });
     } catch (error) {
-        if (req.file) await removeUpload(`/uploads/${req.file.filename}`);
+        if (req.file) await removeUploadedRequestFiles(req);
         next(error);
     }
 };
@@ -173,7 +173,7 @@ const getPublicPortfolio = async (req, res, next) => {
         if (!validSlug(req.params.slug)) return res.status(400).json({ success: false, message: "Invalid portfolio link" });
         const portfolio = await findPublic(req.params.slug);
         if (!portfolio) return res.status(404).json({ success: false, code: "PORTFOLIO_UNAVAILABLE", message: "This portfolio is private or unavailable." });
-        res.json({ success: true, portfolio: publicDto(portfolio) });
+        res.json({ success: true, portfolio: withSignedPortfolioMedia(publicDto(portfolio)) });
     } catch (error) { next(error); }
 };
 
@@ -193,7 +193,7 @@ const getPublicPortfolioPage = async (req, res, next) => {
             Work.distinct("category", baseFilter)
         ]);
         const categories = rawCategories.filter((value) => typeof value === "string" && value.trim()).sort((a, b) => a.localeCompare(b));
-        res.json({ success: true, portfolio: publicDto(portfolio), works, categories, pagination: { page: paging.page, limit: paging.limit, total, pages: Math.ceil(total / paging.limit) } });
+        res.json({ success: true, portfolio: withSignedPortfolioMedia(publicDto(portfolio)), works: works.map(withSignedWorkMedia), categories, pagination: { page: paging.page, limit: paging.limit, total, pages: Math.ceil(total / paging.limit) } });
     } catch (error) { next(error); }
 };
 

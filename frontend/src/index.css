@@ -10988,6 +10988,12 @@ html[data-theme="space"] body .demo-safety-notice {
     accent-color: var(--wcase-yellow);
 }
 
+html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbox"] {
+    accent-color: var(--wcase-black);
+    outline: 2px solid var(--wcase-black);
+    outline-offset: 1px;
+}
+
 .auth-form .legal-acceptance a {
     color: inherit;
     font-weight: 800;

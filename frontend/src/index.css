@@ -10989,9 +10989,25 @@ html[data-theme="space"] body .demo-safety-notice {
 }
 
 html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbox"] {
-    accent-color: var(--wcase-black);
-    outline: 2px solid var(--wcase-black);
-    outline-offset: 1px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid var(--wcase-black);
+    border-radius: .25rem;
+    background: #fff9e8;
+    outline: 0;
+    cursor: pointer;
+}
+
+html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbox"]:checked {
+    background-color: var(--wcase-black);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23f7c644' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m3 8 3 3 7-7'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: .9rem;
+}
+
+html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, .22);
 }
 
 .auth-form .legal-acceptance a {

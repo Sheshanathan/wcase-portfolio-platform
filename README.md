@@ -6,6 +6,8 @@
 
 WCase is a creator-portfolio application for publishing image and video work, sharing a public portfolio, receiving enquiries, and managing engagement. It consists of a React/Vite frontend and an Express/MongoDB API.
 
+The source and status of bundled visual assets are documented in [`ASSET_PROVENANCE.md`](ASSET_PROVENANCE.md).
+
 ## Stack
 
 - React 19, Vite, Tailwind CSS, Axios

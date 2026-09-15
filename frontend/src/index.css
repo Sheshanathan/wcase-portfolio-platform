@@ -11059,53 +11059,65 @@ html[data-theme="space"] body .public-page .public-footer-links :is(a, .privacy-
 .privacy-choice-banner {
     position: fixed;
     z-index: 95;
-    right: clamp(.75rem, 3vw, 2rem);
-    bottom: clamp(.75rem, 3vw, 2rem);
+    right: clamp(.65rem, 2vw, 1.25rem);
+    bottom: clamp(.65rem, 2vw, 1.25rem);
     display: grid;
-    width: min(38rem, calc(100vw - 1.5rem));
-    gap: .9rem;
-    padding: 1rem;
+    width: min(29rem, calc(100vw - 1.3rem));
+    gap: .65rem;
+    padding: .8rem;
     border: 2px solid var(--wcase-yellow);
-    border-radius: .9rem;
+    border-radius: .75rem;
     background: #080808;
     color: #ffffff;
-    box-shadow: 7px 7px 0 rgba(0, 0, 0, .3);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, .28);
 }
 
 .privacy-choice-banner strong {
     display: block;
     color: var(--wcase-yellow);
-    font-size: 1rem;
+    font-size: .9rem;
 }
 
 .privacy-choice-banner p {
-    margin: .35rem 0;
+    margin: .25rem 0;
     color: #f4f4f5 !important;
-    font-size: .82rem;
-    line-height: 1.5;
+    font-size: .75rem;
+    line-height: 1.42;
 }
 
 .privacy-choice-banner a {
+    display: inline-block;
+    padding: .12rem .22rem;
+    border-radius: .25rem;
     color: var(--wcase-yellow);
-    font-size: .8rem;
+    font-size: .74rem;
     font-weight: 800;
     text-underline-offset: 3px;
+}
+
+html[data-theme="default"] body .privacy-choice-banner a:hover,
+html[data-theme="default"] body .privacy-choice-banner a:focus-visible {
+    background: var(--wcase-yellow);
+    color: var(--wcase-black) !important;
+    text-decoration-color: var(--wcase-black);
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 
 .privacy-choice-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .6rem;
+    gap: .45rem;
 }
 
 .privacy-choice-actions button {
-    min-height: 42px;
-    padding: .55rem .7rem;
+    min-height: 36px;
+    padding: .4rem .55rem;
     border: 2px solid var(--wcase-yellow);
     border-radius: .55rem;
     background: transparent;
     color: var(--wcase-yellow);
-    font-size: .78rem;
+    font-size: .72rem;
     font-weight: 800;
 }
 

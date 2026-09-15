@@ -11044,10 +11044,10 @@ html[data-theme="default"] body .public-page .public-footer-links :is(a, .privac
 
 html[data-theme="default"] body .public-page .public-footer-links :is(a, .privacy-choice-link):hover,
 html[data-theme="default"] body .public-page .public-footer-links :is(a, .privacy-choice-link):focus-visible {
-    background: var(--wcase-black);
-    color: var(--wcase-yellow) !important;
-    text-decoration-color: transparent;
-    outline: 2px solid var(--wcase-black);
+    background: rgba(0, 0, 0, .12);
+    color: var(--wcase-black) !important;
+    text-decoration-color: var(--wcase-black);
+    outline: 2px solid rgba(0, 0, 0, .72);
     outline-offset: 2px;
 }
 
@@ -11166,4 +11166,13 @@ html[data-theme="default"] body .privacy-choice-banner a:focus-visible {
 @media (max-width: 520px) {
     .privacy-choice-actions { grid-template-columns: minmax(0, 1fr); }
     .privacy-choice-banner { max-height: calc(100vh - 1.5rem); overflow-y: auto; }
+}
+
+/* Match Default-mode category feedback with a clear filled Space-mode hover/focus state. */
+html[data-theme="space"] body .public-page .category-filters button:not(.active):hover,
+html[data-theme="space"] body .public-page .category-filters button:not(.active):focus-visible {
+    border-color: var(--wcase-yellow) !important;
+    background: var(--wcase-yellow) !important;
+    color: var(--wcase-black) !important;
+    box-shadow: 0 0 0 3px rgba(247, 198, 68, .2) !important;
 }

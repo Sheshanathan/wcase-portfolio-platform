@@ -105,10 +105,18 @@ test("authenticated view tracking rejects invalid sessions before counting", asy
 });
 
 test("authentication inputs are independently validated by the API", async () => {
+    const withoutLegalAcceptance = await fetch(`${baseUrl}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Creator", email: "creator@example.com", password: "Secure123", confirmPassword: "Secure123", otp: "123456" })
+    });
+    assert.equal(withoutLegalAcceptance.status, 400);
+    assert.ok((await withoutLegalAcceptance.json()).errors.acceptedLegal);
+
     const register = await fetch(`${baseUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Creator", email: "creator@example.com", password: "Secure123", confirmPassword: "Different123", otp: "123456" })
+        body: JSON.stringify({ name: "Creator", email: "creator@example.com", password: "Secure123", confirmPassword: "Different123", otp: "123456", acceptedLegal: true })
     });
     assert.equal(register.status, 400);
     assert.ok((await register.json()).errors.confirmPassword);

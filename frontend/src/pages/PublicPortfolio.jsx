@@ -8,6 +8,7 @@ import ShareActions from "../components/ShareActions";
 import ContactForm from "../components/ContactForm";
 import { mediaUrl } from "../config";
 import { getStoredUser } from "../utils/authStorage";
+import { PRIVACY_CHOICES, clearOptionalStorage, readPrivacyChoice, savePrivacyChoice } from "../utils/privacyChoices";
 
 const VISITOR_PATTERN = /^[A-Za-z0-9_-]{16,80}$/;
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -37,12 +38,13 @@ const SocialIcon = ({ name }) => {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 };
 const newVisitorId = () => typeof crypto.randomUUID === "function" ? crypto.randomUUID().replaceAll("-", "") : [...crypto.getRandomValues(new Uint8Array(16))].map((value) => value.toString(16).padStart(2, "0")).join("");
-const getVisitorId = () => { let value = localStorage.getItem("wcaseVisitorId"); if (!VISITOR_PATTERN.test(value || "")) { value = newVisitorId(); localStorage.setItem("wcaseVisitorId", value); } return value; };
-const getLikedWorks = () => { try { const value = JSON.parse(localStorage.getItem("wcaseLikedWorks") || "[]"); return new Set(Array.isArray(value) ? value.filter((id) => OBJECT_ID_PATTERN.test(id)).slice(0, 1000) : []); } catch { localStorage.removeItem("wcaseLikedWorks"); return new Set(); } };
-const viewedRecently = (id) => { try { const views = JSON.parse(localStorage.getItem(WORK_VIEWS_KEY) || "{}"); return views && typeof views === "object" && Date.now() - Number(views[id] || 0) < WORK_VIEW_COOLDOWN_MS; } catch { localStorage.removeItem(WORK_VIEWS_KEY); return false; } };
-const rememberWorkView = (id) => { try { const stored = JSON.parse(localStorage.getItem(WORK_VIEWS_KEY) || "{}"); const now = Date.now(); const recent = Object.entries(stored && typeof stored === "object" ? stored : {}).filter(([key, value]) => OBJECT_ID_PATTERN.test(key) && now - Number(value) < WORK_VIEW_COOLDOWN_MS).slice(-999); localStorage.setItem(WORK_VIEWS_KEY, JSON.stringify(Object.fromEntries([...recent, [id, now]]))); } catch { localStorage.removeItem(WORK_VIEWS_KEY); } };
-const viewedPortfolioRecently = (slug) => { try { const views = JSON.parse(localStorage.getItem(PORTFOLIO_VIEWS_KEY) || "{}"); return views && typeof views === "object" && Date.now() - Number(views[slug] || 0) < PORTFOLIO_VIEW_COOLDOWN_MS; } catch { localStorage.removeItem(PORTFOLIO_VIEWS_KEY); return false; } };
-const rememberPortfolioView = (slug) => { try { const stored = JSON.parse(localStorage.getItem(PORTFOLIO_VIEWS_KEY) || "{}"); const now = Date.now(); const recent = Object.entries(stored && typeof stored === "object" ? stored : {}).filter(([key, value]) => typeof key === "string" && key.length <= 60 && now - Number(value) < PORTFOLIO_VIEW_COOLDOWN_MS).slice(-199); localStorage.setItem(PORTFOLIO_VIEWS_KEY, JSON.stringify(Object.fromEntries([...recent, [slug, now]]))); } catch { localStorage.removeItem(PORTFOLIO_VIEWS_KEY); } };
+const safelyRemove = (key) => { try { localStorage.removeItem(key); } catch { /* Browser storage may be unavailable. */ } };
+const getVisitorId = (fallback) => { try { let value = localStorage.getItem("wcaseVisitorId"); if (!VISITOR_PATTERN.test(value || "")) { value = newVisitorId(); localStorage.setItem("wcaseVisitorId", value); } return value; } catch { return fallback; } };
+const getLikedWorks = () => { try { const value = JSON.parse(localStorage.getItem("wcaseLikedWorks") || "[]"); return new Set(Array.isArray(value) ? value.filter((id) => OBJECT_ID_PATTERN.test(id)).slice(0, 1000) : []); } catch { safelyRemove("wcaseLikedWorks"); return new Set(); } };
+const viewedRecently = (id) => { try { const views = JSON.parse(localStorage.getItem(WORK_VIEWS_KEY) || "{}"); return views && typeof views === "object" && Date.now() - Number(views[id] || 0) < WORK_VIEW_COOLDOWN_MS; } catch { safelyRemove(WORK_VIEWS_KEY); return false; } };
+const rememberWorkView = (id) => { try { const stored = JSON.parse(localStorage.getItem(WORK_VIEWS_KEY) || "{}"); const now = Date.now(); const recent = Object.entries(stored && typeof stored === "object" ? stored : {}).filter(([key, value]) => OBJECT_ID_PATTERN.test(key) && now - Number(value) < WORK_VIEW_COOLDOWN_MS).slice(-999); localStorage.setItem(WORK_VIEWS_KEY, JSON.stringify(Object.fromEntries([...recent, [id, now]]))); } catch { safelyRemove(WORK_VIEWS_KEY); } };
+const viewedPortfolioRecently = (slug) => { try { const views = JSON.parse(localStorage.getItem(PORTFOLIO_VIEWS_KEY) || "{}"); return views && typeof views === "object" && Date.now() - Number(views[slug] || 0) < PORTFOLIO_VIEW_COOLDOWN_MS; } catch { safelyRemove(PORTFOLIO_VIEWS_KEY); return false; } };
+const rememberPortfolioView = (slug) => { try { const stored = JSON.parse(localStorage.getItem(PORTFOLIO_VIEWS_KEY) || "{}"); const now = Date.now(); const recent = Object.entries(stored && typeof stored === "object" ? stored : {}).filter(([key, value]) => typeof key === "string" && key.length <= 60 && now - Number(value) < PORTFOLIO_VIEW_COOLDOWN_MS).slice(-199); localStorage.setItem(PORTFOLIO_VIEWS_KEY, JSON.stringify(Object.fromEntries([...recent, [slug, now]]))); } catch { safelyRemove(PORTFOLIO_VIEWS_KEY); } };
 
 export default function PublicPortfolio() {
     const { slug } = useParams();
@@ -52,8 +54,11 @@ export default function PublicPortfolio() {
     const [portfolio, setPortfolio] = useState(null), [works, setWorks] = useState([]), [categories, setCategories] = useState([]), [pagination, setPagination] = useState(null);
     const [page, setPage] = useState(1), [category, setCategory] = useState(""), [loading, setLoading] = useState(true);
     const [message, setMessage] = useState(""), [viewer, setViewer] = useState(null), [viewerNavigation, setViewerNavigation] = useState({ previousId: null, nextId: null });
-    const [likedWorks, setLikedWorks] = useState(getLikedWorks), [likeBusy, setLikeBusy] = useState(""), [navigationBusy, setNavigationBusy] = useState(false);
+    const [privacyChoice, setPrivacyChoice] = useState(readPrivacyChoice), [privacyPanelOpen, setPrivacyPanelOpen] = useState(() => !readPrivacyChoice());
+    const [likedWorks, setLikedWorks] = useState(() => readPrivacyChoice() === PRIVACY_CHOICES.OPTIONAL ? getLikedWorks() : new Set()), [likeBusy, setLikeBusy] = useState(""), [navigationBusy, setNavigationBusy] = useState(false);
     const [portfolioShareBusy, setPortfolioShareBusy] = useState(false);
+    const optionalStatisticsAllowed = privacyChoice === PRIVACY_CHOICES.OPTIONAL;
+    const sessionVisitorIdRef = useRef(newVisitorId());
     const viewerCacheRef = useRef(new Map());
     const viewerRequestsRef = useRef(new Set());
     const copyGuardRef = useRef({ url: "", at: 0 });
@@ -66,6 +71,7 @@ export default function PublicPortfolio() {
     const mountedRef = useRef(true);
     const portfolioRef = useRef(null);
     useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; pageRequestRef.current += 1; viewerRequestRef.current += 1; }; }, []);
+    useEffect(() => { if (!privacyChoice) clearOptionalStorage(); }, [privacyChoice]);
 
     const loadPage = useCallback(async ({ quiet = false } = {}) => {
         const requestId = ++pageRequestRef.current;
@@ -96,24 +102,24 @@ export default function PublicPortfolio() {
     }, [loadPage]);
     useEffect(() => { if (!portfolio) return; document.title = `${portfolio.title} | WCase`; const description = (portfolio.bio || `${portfolio.creator?.name || "Creator"} portfolio`).slice(0, 155); const setMeta = (selector, attr, value) => { let node = document.head.querySelector(selector); if (!node) { node = document.createElement("meta"); const [key, name] = attr.split("="); node.setAttribute(key, name); document.head.appendChild(node); } node.setAttribute("content", value); }; setMeta('meta[name="description"]', "name=description", description); setMeta('meta[property="og:title"]', "property=og:title", `${portfolio.title} | WCase`); setMeta('meta[property="og:description"]', "property=og:description", description); if (portfolio.coverImage || portfolio.profileImage) setMeta('meta[property="og:image"]', "property=og:image", mediaUrl(portfolio.coverImage || portfolio.profileImage)); }, [portfolio]);
     useEffect(() => {
-        if (!portfolio || getStoredUser() || viewedPortfoliosRef.current.has(slug) || viewedPortfolioRecently(slug)) return;
+        if (!optionalStatisticsAllowed || !portfolio || getStoredUser() || viewedPortfoliosRef.current.has(slug) || viewedPortfolioRecently(slug)) return;
         viewedPortfoliosRef.current.add(slug);
-        api.post(`/portfolios/public/${encodeURIComponent(slug)}/view`, { visitorId: getVisitorId() })
+        api.post(`/portfolios/public/${encodeURIComponent(slug)}/view`, { visitorId: getVisitorId(sessionVisitorIdRef.current) })
             .then(() => rememberPortfolioView(slug))
             .catch(() => viewedPortfoliosRef.current.delete(slug));
-    }, [portfolio, slug]);
+    }, [optionalStatisticsAllowed, portfolio, slug]);
 
     const workUrl = useCallback((work) => `${window.location.origin}/p/${encodeURIComponent(slug)}?work=${encodeURIComponent(work._id)}`, [slug]);
     const recordWorkView = useCallback(async (id) => {
-        if (!OBJECT_ID_PATTERN.test(id || "") || getStoredUser() || viewedWorksRef.current.has(id) || viewedRecently(id)) return;
+        if (!optionalStatisticsAllowed || !OBJECT_ID_PATTERN.test(id || "") || getStoredUser() || viewedWorksRef.current.has(id) || viewedRecently(id)) return;
         viewedWorksRef.current.add(id);
         try {
-            await api.post(`/works/public/${encodeURIComponent(slug)}/${encodeURIComponent(id)}/view`, { visitorId: getVisitorId() });
+            await api.post(`/works/public/${encodeURIComponent(slug)}/${encodeURIComponent(id)}/view`, { visitorId: getVisitorId(sessionVisitorIdRef.current) });
             rememberWorkView(id);
         } catch {
             viewedWorksRef.current.delete(id);
         }
-    }, [slug]);
+    }, [optionalStatisticsAllowed, slug]);
     const loadViewer = useCallback(async (id, updateUrl = true) => {
         if (!id || viewerRequestsRef.current.has(id)) return;
         const requestId = ++viewerRequestRef.current;
@@ -194,7 +200,14 @@ export default function PublicPortfolio() {
         if (result === "copied") notify("success", "Work link copied");
     };
     const copyWork = (work) => copyUrl(workUrl(work));
-    const toggleLike = async (work) => { if (likeLockRef.current) return; likeLockRef.current = true; setLikeBusy(work._id); try { const { data } = await api.post(`/works/public/${work._id}/like`, { visitorId: getVisitorId() }); const update = (item) => item._id === work._id ? { ...item, likeCount: data.likeCount } : item; setWorks((current) => current.map(update)); setViewer((current) => current ? update(current) : current); setLikedWorks((current) => { const next = new Set(current); data.liked ? next.add(work._id) : next.delete(work._id); localStorage.setItem("wcaseLikedWorks", JSON.stringify([...next])); return next; }); } catch (error) { notify("error", error.response?.data?.message || "Like could not be updated"); } finally { likeLockRef.current = false; setLikeBusy(""); } };
+    const toggleLike = async (work) => { if (likeLockRef.current) return; likeLockRef.current = true; setLikeBusy(work._id); try { const visitorId = optionalStatisticsAllowed ? getVisitorId(sessionVisitorIdRef.current) : sessionVisitorIdRef.current; const { data } = await api.post(`/works/public/${work._id}/like`, { visitorId }); const update = (item) => item._id === work._id ? { ...item, likeCount: data.likeCount } : item; setWorks((current) => current.map(update)); setViewer((current) => current ? update(current) : current); setLikedWorks((current) => { const next = new Set(current); data.liked ? next.add(work._id) : next.delete(work._id); if (optionalStatisticsAllowed) { try { localStorage.setItem("wcaseLikedWorks", JSON.stringify([...next])); } catch { /* The like still works for this visit. */ } } return next; }); } catch (error) { notify("error", error.response?.data?.message || "Like could not be updated"); } finally { likeLockRef.current = false; setLikeBusy(""); } };
+
+    const choosePrivacy = (choice) => {
+        savePrivacyChoice(choice);
+        setPrivacyChoice(choice);
+        setPrivacyPanelOpen(false);
+        setLikedWorks(choice === PRIVACY_CHOICES.OPTIONAL ? getLikedWorks() : new Set());
+    };
 
     const selectCategory = useCallback((nextCategory) => {
         setCategory(nextCategory);
@@ -215,6 +228,7 @@ export default function PublicPortfolio() {
         <section id="work" className="public-work-section"><div className="section-header"><div><p className="work-kicker">Selected work</p><h2>Projects</h2></div><p>{pagination?.total || 0} {(pagination?.total || 0) === 1 ? "project" : "projects"}</p></div><div className="category-filters" role="group" aria-label="Filter work by category"><button type="button" className={!category ? "active" : ""} aria-pressed={!category} data-state={!category ? "selected" : "idle"} onClick={() => selectCategory("")} onKeyDown={(event) => selectCategoryByKeyboard(event, "")}>All</button>{categories.map((item) => <button type="button" className={category === item ? "active" : ""} aria-pressed={category === item} data-state={category === item ? "selected" : "idle"} key={item} onClick={() => selectCategory(item)} onKeyDown={(event) => selectCategoryByKeyboard(event, item)}>{item}</button>)}</div><div aria-live="polite" aria-busy={loading}>{loading ? <div className="empty-state">Loading projects…</div> : works.length === 0 ? <div className="empty-state"><h3>{category ? `No ${category} work yet` : "No public work yet"}</h3><p>{category ? "This creator has not published work in this category." : "This creator has not published any work yet."}</p></div> : <div className="public-work-grid">{works.map((work) => <article className="public-work-card" key={work._id}><button type="button" className="work-card-open" onClick={() => loadViewer(work._id)} aria-label={`Open ${work.title}`}><div className="public-media">{work.thumbnailPath ? <img loading="lazy" src={mediaUrl(work.thumbnailPath)} alt="" draggable="false" onDragStart={protectMedia} onContextMenu={protectMedia}/> : work.mediaType === "image" ? <img loading="lazy" src={mediaUrl(work.filePath)} alt="" draggable="false" onDragStart={protectMedia} onContextMenu={protectMedia}/> : <div className="video-placeholder"><span>▶</span><p>Open video</p></div>}</div><div className="public-work-content"><p className="work-kicker">{work.category || "Project"}{work.featured ? " · Featured" : ""}</p><h3>{work.title}</h3>{work.description && <p>{work.description}</p>}</div></button><div className="work-card-actions"><button type="button" className={`like-button ${likedWorks.has(work._id) ? "liked" : ""}`} aria-pressed={likedWorks.has(work._id)} aria-label={`${likedWorks.has(work._id) ? "Unlike" : "Like"} ${work.title}`} disabled={likeBusy === work._id} onClick={() => toggleLike(work)}><span aria-hidden="true">{likedWorks.has(work._id) ? "♥" : "♡"}</span> {work.likeCount || 0}</button><ShareActions onShare={() => shareWork(work)} onCopy={() => copyWork(work)}/></div></article>)}</div>}</div>{pagination?.pages > 1 && <div className="pagination"><button type="button" disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)}>Previous</button><span>Page {page} of {pagination.pages}</span><button type="button" disabled={page >= pagination.pages || loading} onClick={() => setPage((value) => value + 1)}>Next</button></div>}</section>
         <section id="about" className="public-about"><p className="work-kicker">About</p><h2>Meet {portfolio.creator?.name}</h2><p>{portfolio.bio || "This creator has chosen to let the work speak for itself."}</p>{links.length > 0 && <div className="profile-social-links" aria-label="Creator links">{links.map(({ key, label, url }) => <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={`${label} (opens in a new tab)`}><SocialIcon name={key}/><span>{label}</span></a>)}</div>}</section>
         <section id="contact" className="public-contact"><div><p className="work-kicker">Contact</p><h2>Start a conversation</h2><div className="public-contact-details">{portfolio.publicEmail && <div><span>Email</span><p>{portfolio.publicEmail}</p></div>}{portfolio.publicPhone && <div><span>Phone</span><p>{portfolio.publicPhone}</p></div>}</div>{(portfolio.publicEmail || portfolio.publicPhone) && <div className="public-contact-actions">{portfolio.publicEmail && <a className="btn-primary" href={`mailto:${portfolio.publicEmail}`}>Email</a>}{portfolio.publicPhone && <a className="btn-secondary" href={`tel:${portfolio.publicPhone}`}>Call</a>}</div>}</div><ContactForm slug={slug}/></section>
-        <footer className="public-footer"><div className="public-footer-brand"><span>Created with</span><img src="/wcase-logo.png" alt="WCase"/></div><nav className="public-footer-links" aria-label="Legal"><Link to="/privacy">Privacy</Link><span className="public-footer-separator" aria-hidden="true">·</span><Link to="/terms">Terms</Link></nav></footer>
+        <footer className="public-footer"><div className="public-footer-brand"><span>Created with</span><img src="/wcase-logo.png" alt="WCase"/></div><nav className="public-footer-links" aria-label="Legal"><Link to="/privacy">Privacy</Link><span className="public-footer-separator" aria-hidden="true">·</span><Link to="/terms">Terms</Link><span className="public-footer-separator" aria-hidden="true">·</span><button type="button" className="privacy-choice-link" onClick={() => setPrivacyPanelOpen(true)}>Privacy choices</button></nav></footer>
+        {privacyPanelOpen && <aside className="privacy-choice-banner" aria-labelledby="privacy-choice-title"><div><strong id="privacy-choice-title">Your privacy choice</strong><p>WCase can store an anonymous visitor ID for portfolio views and persistent like recognition. Essential-only mode keeps the portfolio available without automatic view tracking.</p><Link to="/privacy" target="_blank" rel="noopener noreferrer">Read the Privacy Policy</Link></div><div className="privacy-choice-actions"><button type="button" aria-pressed={privacyChoice === PRIVACY_CHOICES.ESSENTIAL} onClick={() => choosePrivacy(PRIVACY_CHOICES.ESSENTIAL)}>Use essential only</button><button type="button" aria-pressed={privacyChoice === PRIVACY_CHOICES.OPTIONAL} onClick={() => choosePrivacy(PRIVACY_CHOICES.OPTIONAL)}>Allow anonymous statistics</button></div></aside>}
         {viewer && <WorkViewer work={viewer} mediaUrl={mediaUrl} onClose={closeViewer} onShare={shareWork} onCopy={copyWork} onLike={toggleLike} liked={likedWorks.has(viewer._id)} likeBusy={likeBusy === viewer._id} hasPrevious={Boolean(viewerNavigation.previousId)} hasNext={Boolean(viewerNavigation.nextId)} onPrevious={() => loadViewer(viewerNavigation.previousId)} onNext={() => loadViewer(viewerNavigation.nextId)} navigationBusy={navigationBusy}/>}</main>;
 }

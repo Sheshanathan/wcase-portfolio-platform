@@ -13,16 +13,18 @@ const { sendPasswordReset, sendWelcomeEmail, sendOtpEmail } = require("../servic
 const { issueOtp, verifyOtp } = require("../services/otpService");
 const { removeUpload } = require("../services/storageService");
 const publicUser = (user) => ({ id: user._id, name: user.name, email: user.email, role: user.role });
+const LEGAL_VERSION = "2026-09-15";
 const generateToken = (user) => jwt.sign({ userId: user._id, sessionVersion: user.sessionVersion || 0 }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || "1h" });
 
 const validateRegistration = (body, { withOtp = false } = {}) => {
-    const allowed = withOtp ? ["name", "email", "password", "confirmPassword", "otp"] : ["name", "email", "password", "confirmPassword"];
+    const allowed = withOtp ? ["name", "email", "password", "confirmPassword", "otp", "acceptedLegal"] : ["name", "email", "password", "confirmPassword", "acceptedLegal"];
     if (!hasOnlyKeys(body, allowed)) return { error: "Invalid registration request" };
     const name = cleanText(body.name, 80), email = normalizeEmail(body.email), password = body.password;
     if (!name || name.length < 2) return { error: "Name must be between 2 and 80 characters", field: "name" };
     if (!validEmail(email)) return { error: "Enter a valid email address", field: "email" };
     if (!validPassword(password)) return { error: "Password must be 8-72 characters and include a letter and a number", field: "password" };
     if (password !== body.confirmPassword) return { error: "Passwords do not match", field: "confirmPassword" };
+    if (body.acceptedLegal !== true) return { error: "You must accept the Terms and acknowledge the Privacy Policy", field: "acceptedLegal" };
     return { name, email, password };
 };
 const requestRegistrationOtp = async (req, res, next) => {
@@ -45,7 +47,7 @@ const register = async (req, res, next) => {
         const verified = await verifyOtp({ email: checked.email, purpose: "registration", otp: req.body?.otp });
         if (verified.error) return res.status(verified.status).json({ success: false, code: verified.error, message: verified.message });
         let user;
-        try { user = await User.create({ name: checked.name, email: checked.email, password: await bcrypt.hash(checked.password, 12) }); }
+        try { user = await User.create({ name: checked.name, email: checked.email, password: await bcrypt.hash(checked.password, 12), termsAcceptedAt: new Date(), termsVersion: LEGAL_VERSION, privacyAcknowledgedAt: new Date() }); }
         catch (error) { if (error?.code !== 11000) await EmailOtp.updateOne({ _id: verified.record._id }, { usedAt: null }); throw error; }
         sendWelcomeEmail({ to: user.email, name: user.name }).catch(() => { /* Welcome mail remains best-effort. */ });
         res.status(201).json({ success: true, token: generateToken(user), user: publicUser(user) });

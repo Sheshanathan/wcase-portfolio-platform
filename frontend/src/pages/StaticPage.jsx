@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const EFFECTIVE_DATE = "15 September 2026";
+const PROJECT_REPOSITORY_URL = "https://github.com/Sheshanathan/wcase-portfolio-platform";
 const PROJECT_ISSUES_URL = "https://github.com/Sheshanathan/wcase-portfolio-platform/issues/new";
 
 function LegalHeader({ title, summary }) {
@@ -26,13 +27,13 @@ function PrivacyPolicy() {
 
         <section>
             <h2>About WCase</h2>
-            <p>WCase is an independently operated, non-commercial portfolio demonstration. It lets creators build and publish a portfolio, upload work, receive enquiries, and view basic engagement counts. This policy applies to the WCase website, API, and public portfolio pages.</p>
+            <p>WCase is an independently operated, non-commercial portfolio demonstration. For this demonstration, the operator and data controller is the individual maintainer identified by the owner account of the <a href={PROJECT_REPOSITORY_URL} target="_blank" rel="noopener noreferrer">public WCase source repository</a>. WCase is not presented as a registered company. It lets creators build and publish a portfolio, upload work, receive enquiries, and view basic engagement counts. This policy applies to the WCase website, API, and public portfolio pages.</p>
         </section>
 
         <section>
             <h2>Information WCase handles</h2>
             <ul>
-                <li><strong>Account information:</strong> creator name, email address, password hash, email-verification records, password-reset records, account role, and session-security information.</li>
+                <li><strong>Account information:</strong> creator name, email address, password hash, email-verification records, password-reset records, account role, session-security information, and the date and version of the Terms accepted and Privacy Policy acknowledged.</li>
                 <li><strong>Portfolio information:</strong> portfolio title, biography, speciality, location, optional public contact details, website and social links, profile and cover images, publishing choices, and public URL slug.</li>
                 <li><strong>Work content:</strong> titles, descriptions, categories, project details, tags, images, videos, thumbnails, publication settings, and engagement totals.</li>
                 <li><strong>Enquiries:</strong> a visitor's name, email address, optional phone number, subject, message, date, and read status. Enquiries are available to the creator receiving them.</li>
@@ -43,7 +44,8 @@ function PrivacyPolicy() {
 
         <section>
             <h2>Browser storage</h2>
-            <p>WCase uses browser local storage rather than advertising cookies. For signed-in creators it stores an authentication token and basic account information. It also stores theme preference, a random visitor identifier, recently viewed items, and liked-work identifiers so views and likes behave consistently. Clearing site data removes these browser values and may reset view or like recognition.</p>
+            <p>WCase uses browser local storage rather than advertising cookies. Essential storage keeps a signed-in creator's authentication token and basic account information, remembers the chosen theme, and records the visitor's privacy choice.</p>
+            <p>On public portfolios, WCase asks before enabling optional anonymous statistics. If a visitor chooses “Allow anonymous statistics,” WCase stores a random visitor identifier, recently viewed items, and liked-work identifiers to count views and remember likes. “Use essential only” prevents automatic portfolio and work view tracking; a like requested by the visitor works for that browser visit without storing the identifier in the browser. The choice can be changed through “Privacy choices” in a public portfolio footer. Clearing site data removes these browser values and asks for a new choice.</p>
         </section>
 
         <section>
@@ -55,7 +57,7 @@ function PrivacyPolicy() {
                 <li>To provide basic view and like statistics.</li>
                 <li>To secure the service, enforce limits, diagnose failures, prevent abuse, and comply with legal obligations.</li>
             </ul>
-            <p>Depending on the applicable law, these activities are based on providing the service requested by the user, legitimate interests in operating and protecting the service, consent where required, and compliance with legal obligations.</p>
+            <p>Depending on the applicable law, these activities are based on providing the service requested by the user, legitimate interests in operating and protecting the service, consent for optional anonymous statistics where required, and compliance with legal obligations. A visitor can withdraw that choice at any time through “Privacy choices.”</p>
         </section>
 
         <section>
@@ -65,7 +67,8 @@ function PrivacyPolicy() {
 
         <section>
             <h2>Service providers and transfers</h2>
-            <p>WCase uses Vercel to deliver the frontend, Render to run the API, MongoDB Atlas to store application data, Cloudinary to store and deliver uploaded media, and Brevo to send transactional emails. These providers process information only as needed to provide their services and may process it in countries different from the user's country. Their own privacy and security terms also apply.</p>
+            <p>WCase uses Vercel to deliver the frontend, Render to run the API, MongoDB Atlas to store application data, Cloudinary to store and deliver uploaded media, and Brevo to send transactional emails. These providers process information as service providers under their applicable terms and may process it in countries different from the user's country.</p>
+            <p>Provider information is available in the official privacy notices for <a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noopener noreferrer">Vercel</a>, <a href="https://render.com/privacy" target="_blank" rel="noopener noreferrer">Render</a>, <a href="https://www.mongodb.com/legal/privacy" target="_blank" rel="noopener noreferrer">MongoDB</a>, <a href="https://cloudinary.com/privacy" target="_blank" rel="noopener noreferrer">Cloudinary</a>, and <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">Brevo</a>. Those providers' own terms apply to their independent processing.</p>
         </section>
 
         <section>

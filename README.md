@@ -72,7 +72,9 @@ npm audit --prefix frontend
 8. Do not log authorization headers, signed media URLs, reset links, OTPs, request bodies, or environment values at the proxy or application layer.
 9. The built-in rate limiter is appropriate for a single API process. Use a trusted edge or distributed rate-limit store before running multiple API replicas.
 
-Before a public launch, replace the placeholder Privacy Policy and Terms of Service with documents approved for the actual operator, jurisdiction, retention policy, and contact details.
+The application includes project-specific Privacy Policy and Terms pages. They are a practical compliance baseline, not a substitute for advice from a qualified lawyer in the operator's jurisdiction. Before a commercial or broader public launch, confirm the operator identity and contact method, governing law, retention practices, provider terms, trademarks, and ownership or licences for all uploaded and bundled media.
+
+Values using `example.com`, `example.org`, or the `.example` top-level domain are intentionally non-operational documentation and test placeholders reserved by IANA. Replace them with real deployment values where instructed; do not replace them merely because they appear in tests or examples.
 
 ## Repository safety
 

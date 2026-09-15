@@ -38,7 +38,10 @@ const userSchema = new mongoose.Schema(
         isActive: { type: Boolean, default: true, select: false },
         passwordResetTokenHash: { type: String, select: false, index: true, default: null },
         passwordResetExpiresAt: { type: Date, select: false, default: null },
-        sessionVersion: { type: Number, default: 0, select: false }
+        sessionVersion: { type: Number, default: 0, select: false },
+        termsAcceptedAt: { type: Date, default: null, select: false, immutable: true },
+        termsVersion: { type: String, maxlength: 20, default: null, select: false, immutable: true },
+        privacyAcknowledgedAt: { type: Date, default: null, select: false, immutable: true }
     },
     {
         timestamps: true,

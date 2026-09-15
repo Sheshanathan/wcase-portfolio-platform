@@ -25,6 +25,7 @@ function Register() {
     const [loading, setLoading] = useState(false);
     const [busyAction, setBusyAction] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [acceptedLegal, setAcceptedLegal] = useState(false);
     const [otpRequested, setOtpRequested] = useState(false);
     const [digits, setDigits] = useState(emptyOtp);
     const [resendSeconds, setResendSeconds] = useState(0);
@@ -49,10 +50,10 @@ function Register() {
         setMessage(""); setMessageType("error");
     };
     const requestOtp = async ({ resent = false } = {}) => {
-        if (!valid || loading || requestLockRef.current || (resent && resendSeconds > 0)) return;
+        if (!valid || !acceptedLegal || loading || requestLockRef.current || (resent && resendSeconds > 0)) return;
         requestLockRef.current = true; setLoading(true); setBusyAction("sending"); setMessage("");
         try {
-            const { data } = await api.post("/auth/register/request-otp", { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password, confirmPassword: form.confirmPassword });
+            const { data } = await api.post("/auth/register/request-otp", { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password, confirmPassword: form.confirmPassword, acceptedLegal: true });
             setOtpRequested(true); setDigits(emptyOtp()); setExpiryMinutes(data.expiresInMinutes || 10); setResendSeconds(data.resendAfterSeconds || 60);
             setMessageType("success"); setMessage(resent ? "A new verification code has been sent." : data.message);
         } catch (error) {
@@ -68,7 +69,7 @@ function Register() {
         if (otp.length !== OTP_LENGTH || loading || requestLockRef.current) return;
         requestLockRef.current = true; setLoading(true); setBusyAction("verifying"); setMessage("");
         try {
-            const { data } = await api.post("/auth/register", { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password, confirmPassword: form.confirmPassword, otp });
+            const { data } = await api.post("/auth/register", { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password, confirmPassword: form.confirmPassword, otp, acceptedLegal: true });
             storeSession(data.token, data.user);
             navigate("/dashboard", { replace: true, state: { showWelcome: true, creatorName: data.user.name } });
         } catch (error) {
@@ -88,8 +89,8 @@ function Register() {
                 <div><label htmlFor="email">Email</label><input id="email" className={`form-input ${touched.email && errors.email ? "input-error" : ""}`} type="email" name="email" value={form.email} onChange={handleChange} onBlur={() => setTouched((value) => ({ ...value, email: true }))} maxLength={150} autoComplete="email" placeholder="you@example.com" aria-invalid={Boolean(touched.email && errors.email)} aria-describedby={touched.email && errors.email ? "email-error" : undefined} />{touched.email && errors.email && <p id="email-error" className="field-error">{errors.email}</p>}</div>
                 <div><label htmlFor="password">Password</label><div className="password-field"><input id="password" className={`form-input ${touched.password && errors.password ? "input-error" : ""}`} type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} onBlur={() => setTouched((value) => ({ ...value, password: true }))} maxLength={72} autoComplete="new-password" placeholder="Create a strong password" aria-invalid={Boolean(touched.password && errors.password)} aria-describedby="password-rules" /><button type="button" aria-label={`${showPassword ? "Hide" : "Show"} password`} aria-pressed={showPassword} onClick={() => setShowPassword((value) => !value)}>{showPassword ? "Hide" : "Show"}</button></div>{form.password && <div id="password-rules" className="password-rules" aria-live="polite"><span className={checks.length ? "valid" : ""}>8–72 characters</span><span className={checks.letter ? "valid" : ""}>At least one letter</span><span className={checks.number ? "valid" : ""}>At least one number</span></div>}{touched.password && errors.password && <p className="field-error">{errors.password}</p>}</div>
                 <div><label htmlFor="confirmPassword">Confirm password</label><input id="confirmPassword" className={`form-input ${touched.confirmPassword && errors.confirmPassword ? "input-error" : ""}`} type={showPassword ? "text" : "password"} name="confirmPassword" value={form.confirmPassword} onChange={handleChange} onBlur={() => setTouched((value) => ({ ...value, confirmPassword: true }))} maxLength={72} autoComplete="new-password" placeholder="Enter your password again" aria-invalid={Boolean(touched.confirmPassword && errors.confirmPassword)} aria-describedby={touched.confirmPassword && errors.confirmPassword ? "confirm-password-error" : undefined}/>{touched.confirmPassword && errors.confirmPassword && <p id="confirm-password-error" className="field-error">{errors.confirmPassword}</p>}</div>
-                <p className="legal-consent">By requesting a verification code, you confirm that you are at least 18 and agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Terms</Link> and acknowledge the <Link to="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>.</p>
-                <button className="btn-primary auth-submit" type="submit" disabled={!valid || loading}>{busyAction === "sending" ? "Sending code..." : "Send Verification Code"}</button>
+                <label className="legal-acceptance"><input type="checkbox" checked={acceptedLegal} onChange={(event) => setAcceptedLegal(event.target.checked)} /><span>I confirm that I am at least 18, agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer">Terms</Link>, and acknowledge the <Link to="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>.</span></label>
+                <button className="btn-primary auth-submit" type="submit" disabled={!valid || !acceptedLegal || loading}>{busyAction === "sending" ? "Sending code..." : "Send Verification Code"}</button>
             </form>
             <p className="auth-footer">Already have an account? <Link to="/login">Login</Link></p>
         </> : <section className="verify-account-section" aria-labelledby="verify-account-title">

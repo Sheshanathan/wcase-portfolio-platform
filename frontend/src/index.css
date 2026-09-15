@@ -11169,7 +11169,7 @@ html[data-theme="default"] body .privacy-choice-banner a:focus-visible {
 }
 
 /* Match Default-mode category feedback with a clear filled Space-mode hover/focus state. */
-html[data-theme="space"] body .public-page .category-filters button[data-state="idle"]:is(:hover, :focus, :focus-visible) {
+html[data-theme="space"] body .public-page .category-filters button[data-state="idle"]:not(.active):not(:disabled):is(:hover, :focus, :focus-visible) {
     border-color: var(--wcase-yellow) !important;
     background: var(--wcase-yellow) !important;
     color: var(--wcase-black) !important;

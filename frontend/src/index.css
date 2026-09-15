@@ -10992,6 +10992,7 @@ html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbo
     appearance: auto;
     -webkit-appearance: auto;
     color-scheme: dark;
+    accent-color: #333333;
     border: 0;
     background: transparent;
     outline: 0;

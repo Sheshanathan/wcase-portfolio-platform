@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/wcase-logo.png" alt="WCase logo" width="180">
+</p>
+
 # WCase
 
 WCase is a creator-portfolio application for publishing image and video work, sharing a public portfolio, receiving enquiries, and managing engagement. It consists of a React/Vite frontend and an Express/MongoDB API.

@@ -11038,12 +11038,16 @@ html[data-theme="default"] body .auth-form .legal-acceptance input[type="checkbo
     text-decoration-color: transparent;
 }
 
+html[data-theme="default"] body .public-page .public-footer-links :is(a, .privacy-choice-link) {
+    color: var(--wcase-black) !important;
+}
+
 html[data-theme="default"] body .public-page .public-footer-links :is(a, .privacy-choice-link):hover,
 html[data-theme="default"] body .public-page .public-footer-links :is(a, .privacy-choice-link):focus-visible {
-    background: var(--wcase-yellow);
-    color: var(--wcase-black) !important;
+    background: var(--wcase-black);
+    color: var(--wcase-yellow) !important;
     text-decoration-color: transparent;
-    outline: 2px solid var(--wcase-yellow);
+    outline: 2px solid var(--wcase-black);
     outline-offset: 2px;
 }
 
@@ -11076,6 +11080,37 @@ html[data-theme="space"] body .public-page .public-footer-links :is(a, .privacy-
     display: block;
     color: var(--wcase-yellow);
     font-size: .9rem;
+}
+
+.privacy-choice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.privacy-choice-close {
+    display: inline-grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 1.75rem;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #71717a;
+    border-radius: 50%;
+    background: transparent;
+    color: #ffffff;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.privacy-choice-close:hover,
+.privacy-choice-close:focus-visible {
+    border-color: var(--wcase-yellow);
+    background: var(--wcase-yellow);
+    color: var(--wcase-black);
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 
 .privacy-choice-banner p {

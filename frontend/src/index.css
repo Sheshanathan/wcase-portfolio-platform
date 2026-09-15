@@ -10832,3 +10832,30 @@ html[data-theme="space"] body .auth-card .auth-footer a:focus-visible {
     white-space: normal;
     overflow-wrap: anywhere;
 }
+
+/* Keep the public logo inside medium desktop viewports; use the outside position only when space allows. */
+@media (min-width: 1240px) and (max-width: 1439px) {
+    html[data-theme] body .public-page .public-header-shell {
+        display: flex;
+    }
+
+    html[data-theme] body .public-page .public-header-logo,
+    html[data-theme] body .public-page .public-header-logo:hover,
+    html[data-theme] body .public-page .public-header-logo:focus-visible {
+        position: static;
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        transform: none !important;
+    }
+
+    html[data-theme] body .public-page .public-header-logo img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .public-page .public-header-shell .public-nav {
+        width: auto;
+        flex: 1 1 auto;
+    }
+}

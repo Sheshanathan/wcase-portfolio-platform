@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api";
 import DemoSafetyNotice from "./DemoSafetyNotice";
 import { apiFieldErrors, validateEmail, validateMessage, validateName, validatePhone, validateSubject } from "../utils/validation";
@@ -65,6 +66,7 @@ export default function ContactForm({ slug }) {
             <div><label htmlFor="contact-subject">Subject *</label><input id="contact-subject" className={`form-input ${field("subject") ? "input-error" : ""}`} name="subject" maxLength={120} value={form.subject} onChange={change} onBlur={() => setTouched((current) => ({ ...current, subject: true }))} aria-invalid={Boolean(field("subject"))} aria-describedby={field("subject") ? "contact-subject-error" : undefined}/>{field("subject") && <p id="contact-subject-error" className="field-error">{field("subject")}</p>}</div>
         </div>
         <div><label htmlFor="contact-message">Message *</label><textarea id="contact-message" className={`form-input textarea ${field("message") ? "input-error" : ""}`} name="message" maxLength={2000} value={form.message} onChange={change} onBlur={() => setTouched((current) => ({ ...current, message: true }))} aria-invalid={Boolean(field("message"))} aria-describedby={field("message") ? "contact-message-error" : undefined}/>{field("message") && <p id="contact-message-error" className="field-error">{field("message")}</p>}</div>
+        <p className="legal-consent">Submitting this form stores your details and shares them with this portfolio's creator. See the <Link to="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>.</p>
         {notice && <p role={status === "error" ? "alert" : "status"} className={status === "success" ? "success-text" : "field-error"}>{notice}</p>}
         <button type="submit" className="btn-primary contact-submit" disabled={status === "loading" || !valid}><span>{status === "loading" ? "Sending…" : "Send enquiry"}</span><span aria-hidden="true" className="contact-submit-arrow">→</span></button>
     </form>;

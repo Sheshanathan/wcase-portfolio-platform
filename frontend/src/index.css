@@ -5669,6 +5669,65 @@ label[for]:focus-visible {
     font-weight: 650;
 }
 
+.legal-page {
+    line-height: 1.7;
+}
+
+.legal-page .legal-meta {
+    margin: -0.6rem auto 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 750;
+}
+
+.legal-page section {
+    width: min(100%, 1100px);
+    margin: 0 auto;
+}
+
+.legal-page ul {
+    margin: 0.75rem 0 0;
+    padding-left: 1.4rem;
+}
+
+.legal-page li + li {
+    margin-top: 0.55rem;
+}
+
+.legal-page a {
+    color: inherit;
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.legal-page a:hover,
+.legal-page a:focus-visible {
+    text-decoration-thickness: 4px;
+}
+
+html[data-theme="space"] .legal-page :is(p, li, a, strong) {
+    color: var(--space-text) !important;
+}
+
+@media (max-width: 620px) {
+    .legal-page ul { padding-left: 1.15rem; }
+}
+
+.legal-consent {
+    margin: -0.15rem 0 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    opacity: 0.85;
+}
+
+.legal-consent a {
+    color: inherit;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 .public-nav a:focus-visible,
 .public-nav button:focus-visible,
 .modal-close:focus-visible,

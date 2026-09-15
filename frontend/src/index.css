@@ -10789,6 +10789,55 @@ html[data-theme="space"] body .auth-card .auth-footer a:focus-visible {
     text-decoration-color: var(--wcase-black);
 }
 
+/* Compact safety guidance that does not alter form controls or submission flow. */
+.demo-safety-notice {
+    box-sizing: border-box;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: .45rem;
+    padding: .5rem .6rem;
+    border: 1.5px solid var(--wcase-black);
+    border-radius: .6rem;
+    background: rgba(255, 255, 255, .24);
+    color: var(--wcase-black);
+    font-size: .72rem;
+    line-height: 1.35;
+}
+
+.demo-safety-notice strong {
+    font-size: .67rem;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.demo-safety-notice p {
+    min-width: 0;
+    margin: 0;
+    color: inherit !important;
+}
+
+.auth-card > .demo-safety-notice { margin: 0 0 .65rem; }
+.dashboard :is(.add-work-modal-header, .dashboard-editor-modal-header) .demo-safety-notice { margin-top: .5rem; }
+.public-page .contact-form > .demo-safety-notice { margin-bottom: .1rem; }
+
+html[data-theme="space"] body .demo-safety-notice {
+    border-color: var(--wcase-yellow);
+    background: rgba(247, 198, 68, .08);
+    color: var(--space-text);
+}
+
+@media (max-width: 480px) {
+    .demo-safety-notice {
+        grid-template-columns: minmax(0, 1fr);
+        gap: .15rem;
+    }
+}
+
 /* Keep creator work cards compact and prevent long status labels from escaping. */
 .dashboard .work-grid .work-card:not(.work-card-editing) {
     display: flex;

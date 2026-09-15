@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
+import DemoSafetyNotice from "../components/DemoSafetyNotice";
 import OtpInput from "../components/OtpInput";
 import { passwordChecks, validateEmail, validateName, validatePassword, validatePasswordConfirmation, apiFieldErrors } from "../utils/validation";
 import { storeSession } from "../utils/authStorage";
@@ -80,6 +81,7 @@ function Register() {
         <div className="auth-brand"><Link to="/" aria-label="WCase home"><img src="/wcase-logo.png" alt="WCase" /></Link></div>
         {!otpRequested ? <>
             <div className="auth-heading"><h1>Create your account</h1><p>Build your portfolio, upload your work and share one public link.</p></div>
+            <DemoSafetyNotice>WCase is a demonstration project. Do not add confidential, sensitive, or private information.</DemoSafetyNotice>
             {message && <div className="message-box error-message" role="alert">{message}</div>}
             <form className="auth-form" onSubmit={submitDetails} noValidate>
                 <div><label htmlFor="name">Name</label><input id="name" className={`form-input ${touched.name && errors.name ? "input-error" : ""}`} name="name" value={form.name} onChange={handleChange} onBlur={() => setTouched((value) => ({ ...value, name: true }))} maxLength={80} autoComplete="name" placeholder="Your name" aria-invalid={Boolean(touched.name && errors.name)} aria-describedby={touched.name && errors.name ? "name-error" : undefined} />{touched.name && errors.name && <p id="name-error" className="field-error">{errors.name}</p>}</div>

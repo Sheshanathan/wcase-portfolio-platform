@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import api from "../api";
+import DemoSafetyNotice from "./DemoSafetyNotice";
 import { apiFieldErrors, validateEmail, validateMessage, validateName, validatePhone, validateSubject } from "../utils/validation";
 
 const initialForm = { name: "", email: "", phone: "", subject: "", message: "" };
@@ -54,6 +55,7 @@ export default function ContactForm({ slug }) {
 
     const field = (name) => touched[name] ? errors[name] || serverErrors[name] : "";
     return <form className="contact-form" onSubmit={submit} noValidate aria-busy={status === "loading"}>
+        <DemoSafetyNotice>Do not include passwords, financial details, identification numbers, or other sensitive information in your message.</DemoSafetyNotice>
         <div className="form-row">
             <div><label htmlFor="contact-name">Name *</label><input id="contact-name" className={`form-input ${field("name") ? "input-error" : ""}`} name="name" maxLength={80} value={form.name} onChange={change} onBlur={() => setTouched((current) => ({ ...current, name: true }))} autoComplete="name" aria-invalid={Boolean(field("name"))} aria-describedby={field("name") ? "contact-name-error" : undefined}/>{field("name") && <p id="contact-name-error" className="field-error">{field("name")}</p>}</div>
             <div><label htmlFor="contact-email">Email *</label><input id="contact-email" className={`form-input ${field("email") ? "input-error" : ""}`} type="email" name="email" maxLength={150} value={form.email} onChange={change} onBlur={() => setTouched((current) => ({ ...current, email: true }))} autoComplete="email" aria-invalid={Boolean(field("email"))} aria-describedby={field("email") ? "contact-email-error" : undefined}/>{field("email") && <p id="contact-email-error" className="field-error">{field("email")}</p>}</div>

@@ -11205,6 +11205,24 @@ html[data-theme="space"] body .home-page [data-tour-active="true"] {
     box-shadow: 0 0 0 9px rgba(247, 198, 68, .18), 0 18px 52px rgba(0, 0, 0, .72) !important;
 }
 
+.home-page .home-content[data-tour-active="true"] {
+    padding: clamp(.75rem, 2vw, 1.1rem);
+    border-radius: 1rem;
+}
+
+.home-page .home-actions[data-tour-active="true"] {
+    padding: .65rem;
+    border-radius: .85rem;
+}
+
+html[data-theme="default"] body .home-page :is(.home-content, .home-actions)[data-tour-active="true"] {
+    background: var(--wcase-yellow);
+}
+
+html[data-theme="space"] body .home-page :is(.home-content, .home-actions)[data-tour-active="true"] {
+    background: rgba(5, 9, 22, .96);
+}
+
 .home-tour-dialog {
     position: fixed;
     z-index: 1200;

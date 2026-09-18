@@ -29,15 +29,14 @@ function Home() {
                     </p>
 
                     <h1>
-                        <span>Showcase your work.</span>
-                        <span>Share one link.</span>
+                        <span>Turn your work into a story.</span>
+                        <span>Share it in one link.</span>
                     </h1>
 
                     <p className="home-description">
-                        Create your portfolio, upload
-                        your videos and images, and
-                        share your work with anyone
-                        through one public link.
+                        Your projects already show what you can do. Bring your
+                        best work together, explain the value behind it, and
+                        give recruiters one clear place to understand you.
                     </p>
 
                     <div className="home-actions">
@@ -45,7 +44,7 @@ function Home() {
                             to="/register"
                             className="btn-primary"
                         >
-                            Create Portfolio
+                            Build My Portfolio
                         </Link>
 
                         <Link
@@ -60,30 +59,29 @@ function Home() {
 
             <section className="home-features">
                 <div className="feature-card">
-                    <h2>Upload your work</h2>
+                    <h2>Start with your best work</h2>
 
                     <p>
-                        Add videos and images directly
-                        from your device.
+                        Choose the images and videos that
+                        show your strongest skills.
                     </p>
                 </div>
 
                 <div className="feature-card">
-                    <h2>Build your portfolio</h2>
+                    <h2>Shape your story</h2>
 
                     <p>
-                        Manage your title, bio, work
-                        visibility and portfolio status.
+                        Add context, organise each project,
+                        and publish only what people should see.
                     </p>
                 </div>
 
                 <div className="feature-card">
-                    <h2>Share one link</h2>
+                    <h2>Open the next conversation</h2>
 
                     <p>
-                        Anyone can open your public
-                        portfolio and view your published
-                        work without logging in.
+                        Send one link so recruiters can explore
+                        your work and contact you without logging in.
                     </p>
                 </div>
             </section>

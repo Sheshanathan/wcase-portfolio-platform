@@ -41,7 +41,9 @@ const userSchema = new mongoose.Schema(
         sessionVersion: { type: Number, default: 0, select: false },
         termsAcceptedAt: { type: Date, default: null, select: false, immutable: true },
         termsVersion: { type: String, maxlength: 20, default: null, select: false, immutable: true },
-        privacyAcknowledgedAt: { type: Date, default: null, select: false, immutable: true }
+        privacyAcknowledgedAt: { type: Date, default: null, select: false, immutable: true },
+        dashboardTourPending: { type: Boolean },
+        dashboardTourCompletedAt: { type: Date, default: null, select: false }
     },
     {
         timestamps: true,

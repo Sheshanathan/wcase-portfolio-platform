@@ -2,7 +2,7 @@ const express =
     require("express");
 
 const {
-    requestRegistrationOtp, register, login, forgotPassword, validateResetToken, resetPassword, requestDeleteAccountOtp, deleteAccount
+    requestRegistrationOtp, register, login, forgotPassword, validateResetToken, resetPassword, requestDeleteAccountOtp, deleteAccount, completeDashboardTour, publicUser
 } = require(
     "../controllers/authController"
 );
@@ -42,6 +42,7 @@ router.get("/reset-password/:token", resetLimiter, validateResetToken);
 router.post("/reset-password/:token", resetLimiter, resetPassword);
 router.post("/delete-account/request-otp", protect, deleteOtpLimiter, requestDeleteAccountOtp);
 router.delete("/delete-account", protect, deleteOtpLimiter, deleteAccount);
+router.post("/dashboard-tour/complete", protect, completeDashboardTour);
 
 router.get(
     "/profile",
@@ -50,19 +51,7 @@ router.get(
         return res.status(200).json({
             success: true,
 
-            user: {
-                id:
-                    req.user._id,
-
-                name:
-                    req.user.name,
-
-                email:
-                    req.user.email,
-
-                role:
-                    req.user.role
-            }
+            user: publicUser(req.user)
         });
     }
 );

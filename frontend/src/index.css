@@ -11169,89 +11169,57 @@ html[data-theme="space"] body .public-page .category-filters button[data-state="
     box-shadow: 0 0 0 3px rgba(247, 198, 68, .2) !important;
 }
 
-/* First-visit homepage tour. Kept fully scoped so app and portfolio UI remain unchanged. */
-.home-tour-backdrop {
+/* Account-based dashboard onboarding. The spotlight and card stay isolated from dashboard layout. */
+.dashboard-tour-layer {
     position: fixed;
-    z-index: 1180;
+    z-index: 2080;
     inset: 0;
-    background: rgba(3, 5, 12, .7);
-    backdrop-filter: blur(2px);
-}
-
-.home-page [data-tour-active="true"] {
-    position: relative;
-    z-index: 1190;
     pointer-events: none;
-    isolation: isolate;
 }
 
-.home-page[data-tour-open="true"] .home-hero:has(.home-content[data-tour-active="true"], .home-actions[data-tour-active="true"]) {
-    z-index: 1185;
-}
-
-.home-page[data-tour-open="true"] .home-content:has(.home-actions[data-tour-active="true"]) > :not(.home-actions) {
-    opacity: .2;
-}
-
-html[data-theme="default"] body .home-page [data-tour-active="true"] {
-    outline: 3px solid var(--wcase-black);
-    outline-offset: 6px;
-    box-shadow: 0 0 0 9px #fff0a8, 0 18px 46px rgba(0, 0, 0, .35) !important;
-}
-
-html[data-theme="space"] body .home-page [data-tour-active="true"] {
-    outline: 3px solid var(--wcase-yellow);
-    outline-offset: 6px;
-    box-shadow: 0 0 0 9px rgba(247, 198, 68, .18), 0 18px 52px rgba(0, 0, 0, .72) !important;
-}
-
-.home-page .home-content[data-tour-active="true"] {
-    padding: clamp(.75rem, 2vw, 1.1rem);
-    border-radius: 1rem;
-}
-
-.home-page .home-actions[data-tour-active="true"] {
-    padding: .65rem;
-    border-radius: .85rem;
-}
-
-html[data-theme="default"] body .home-page :is(.home-content, .home-actions)[data-tour-active="true"] {
-    background: var(--wcase-yellow);
-}
-
-html[data-theme="space"] body .home-page :is(.home-content, .home-actions)[data-tour-active="true"] {
-    background: rgba(5, 9, 22, .96);
-}
-
-.home-tour-dialog {
+.dashboard-tour-blocker {
     position: fixed;
-    z-index: 1200;
-    left: clamp(.75rem, 2vw, 1.5rem);
+    z-index: 2080;
+    inset: 0;
+    pointer-events: auto;
+}
+
+.dashboard-tour-spotlight {
+    position: fixed;
+    z-index: 2081;
+    border: 3px solid var(--wcase-yellow);
+    border-radius: .85rem;
+    box-shadow: 0 0 0 9999px rgba(3, 5, 12, .76), 0 0 0 6px rgba(247, 198, 68, .2);
+    pointer-events: none;
+    transition: top .18s ease, left .18s ease, width .18s ease, height .18s ease;
+}
+
+.dashboard-tour-card {
+    position: fixed;
+    z-index: 2090;
+    top: .75rem;
+    left: .75rem;
     display: grid;
-    width: min(28rem, calc(100vw - 1.5rem));
+    visibility: hidden;
+    width: min(25rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 1.5rem);
     gap: .7rem;
-    padding: clamp(1rem, 2.5vw, 1.35rem);
+    overflow-y: auto;
+    padding: 1.15rem;
     border: 2px solid var(--wcase-yellow);
     border-radius: 1rem;
     background: #090909;
     color: #ffffff;
-    box-shadow: 7px 7px 0 rgba(0, 0, 0, .38), 0 18px 55px rgba(0, 0, 0, .38);
+    box-shadow: 7px 7px 0 rgba(0, 0, 0, .4), 0 18px 55px rgba(0, 0, 0, .45);
+    pointer-events: auto;
 }
 
-.home-tour-dialog[data-placement="top"] {
-    top: clamp(4.25rem, 9vh, 5.5rem);
-}
-
-.home-tour-dialog[data-placement="bottom"] {
-    bottom: clamp(4rem, 9vh, 5.5rem);
-}
-
-.home-tour-dialog:focus {
+.dashboard-tour-card:focus {
     outline: 3px solid #ffffff;
     outline-offset: 3px;
 }
 
-.home-tour-progress-row {
+.dashboard-tour-progress-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -11259,17 +11227,17 @@ html[data-theme="space"] body .home-page :is(.home-content, .home-actions)[data-
     color: var(--wcase-yellow);
     font-size: .7rem;
     font-weight: 900;
-    letter-spacing: .11em;
+    letter-spacing: .1em;
 }
 
-.home-tour-progress {
+.dashboard-tour-progress {
     height: .35rem;
     overflow: hidden;
     border-radius: 999px;
     background: #343434;
 }
 
-.home-tour-progress span {
+.dashboard-tour-progress span {
     display: block;
     height: 100%;
     border-radius: inherit;
@@ -11277,42 +11245,44 @@ html[data-theme="space"] body .home-page :is(.home-content, .home-actions)[data-
     transition: width .2s ease;
 }
 
-.home-tour-dialog h2 {
+.dashboard-tour-card h2 {
     margin: .05rem 0 0;
     color: var(--wcase-yellow) !important;
-    font-size: clamp(1.2rem, 3vw, 1.55rem);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
     line-height: 1.15;
 }
 
-.home-tour-dialog p {
+.dashboard-tour-card p {
     margin: 0;
     color: #f4f4f5 !important;
     font-size: .9rem;
     line-height: 1.5;
 }
 
-.home-tour-actions,
-.home-tour-actions > div {
+.dashboard-tour-actions,
+.dashboard-tour-actions > div {
     display: flex;
     align-items: center;
-    gap: .55rem;
+    gap: .5rem;
 }
 
-.home-tour-actions {
+.dashboard-tour-actions {
     justify-content: space-between;
     margin-top: .15rem;
 }
 
-.home-tour-actions button {
+.dashboard-tour-actions button {
     min-height: 40px;
-    padding: .55rem .85rem;
+    padding: .55rem .8rem;
     border: 2px solid var(--wcase-yellow);
     border-radius: .6rem;
     font-size: .78rem;
     font-weight: 850;
 }
 
-.home-tour-skip {
+.dashboard-tour-actions button:disabled { cursor: wait; opacity: .65; }
+
+.dashboard-tour-skip {
     border-color: transparent !important;
     background: transparent;
     color: #d4d4d8;
@@ -11320,48 +11290,32 @@ html[data-theme="space"] body .home-page :is(.home-content, .home-actions)[data-
     text-underline-offset: 3px;
 }
 
-.home-tour-back {
+.dashboard-tour-back {
     background: transparent;
     color: var(--wcase-yellow);
 }
 
-.home-tour-next,
-.home-tour-actions button:hover,
-.home-tour-actions button:focus-visible {
+.dashboard-tour-next,
+.dashboard-tour-actions button:not(:disabled):hover,
+.dashboard-tour-actions button:not(:disabled):focus-visible {
     background: var(--wcase-yellow);
     color: var(--wcase-black);
 }
 
-.home-tour-actions button:focus-visible {
+.dashboard-tour-actions button:focus-visible {
     outline: 2px solid #ffffff;
     outline-offset: 2px;
 }
 
 @media (max-width: 560px) {
-    .home-tour-dialog {
-        right: .75rem;
-        left: .75rem;
-        width: auto;
-        max-height: calc(100dvh - 8rem);
-        overflow-y: auto;
-    }
-
-    .home-tour-dialog[data-placement="top"] { top: 4rem; }
-    .home-tour-dialog[data-placement="bottom"] { bottom: 3.5rem; }
-
-    .home-tour-actions {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .home-tour-actions > div,
-    .home-tour-actions button {
-        width: 100%;
-    }
-
-    .home-tour-actions > div > button { flex: 1 1 0; }
+    .dashboard-tour-card { padding: 1rem; }
+    .dashboard-tour-actions { align-items: stretch; flex-direction: column; }
+    .dashboard-tour-actions > div,
+    .dashboard-tour-actions button { width: 100%; }
+    .dashboard-tour-actions > div > button { flex: 1 1 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .home-tour-progress span { transition: none; }
+    .dashboard-tour-spotlight,
+    .dashboard-tour-progress span { transition: none; }
 }

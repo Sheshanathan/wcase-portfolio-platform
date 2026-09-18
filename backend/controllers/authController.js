@@ -12,7 +12,13 @@ const { normalizeEmail, validEmail, validPassword, validLoginPassword, cleanText
 const { sendPasswordReset, sendWelcomeEmail, sendOtpEmail } = require("../services/mailService");
 const { issueOtp, verifyOtp } = require("../services/otpService");
 const { removeUpload } = require("../services/storageService");
-const publicUser = (user) => ({ id: user._id, name: user.name, email: user.email, role: user.role });
+const publicUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    dashboardTourPending: user.dashboardTourPending === true
+});
 const LEGAL_VERSION = "2026-09-15";
 const generateToken = (user) => jwt.sign({ userId: user._id, sessionVersion: user.sessionVersion || 0 }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || "1h" });
 
@@ -47,7 +53,7 @@ const register = async (req, res, next) => {
         const verified = await verifyOtp({ email: checked.email, purpose: "registration", otp: req.body?.otp });
         if (verified.error) return res.status(verified.status).json({ success: false, code: verified.error, message: verified.message });
         let user;
-        try { user = await User.create({ name: checked.name, email: checked.email, password: await bcrypt.hash(checked.password, 12), termsAcceptedAt: new Date(), termsVersion: LEGAL_VERSION, privacyAcknowledgedAt: new Date() }); }
+        try { user = await User.create({ name: checked.name, email: checked.email, password: await bcrypt.hash(checked.password, 12), termsAcceptedAt: new Date(), termsVersion: LEGAL_VERSION, privacyAcknowledgedAt: new Date(), dashboardTourPending: true }); }
         catch (error) { if (error?.code !== 11000) await EmailOtp.updateOne({ _id: verified.record._id }, { usedAt: null }); throw error; }
         sendWelcomeEmail({ to: user.email, name: user.name }).catch(() => { /* Welcome mail remains best-effort. */ });
         res.status(201).json({ success: true, token: generateToken(user), user: publicUser(user) });
@@ -103,6 +109,15 @@ const login = async (req, res, next) => {
         res.json({ success: true, token: generateToken(user), user: publicUser(user) });
     } catch (error) { next(error); }
 };
+const completeDashboardTour = async (req, res, next) => {
+    try {
+        if (!hasOnlyKeys(req.body || {}, [])) return res.status(400).json({ success: false, message: "Invalid tour completion request" });
+        req.user.dashboardTourPending = false;
+        req.user.dashboardTourCompletedAt = new Date();
+        await req.user.save({ validateBeforeSave: false });
+        res.json({ success: true, user: publicUser(req.user) });
+    } catch (error) { next(error); }
+};
 const forgotPassword = async (req, res, next) => {
     try {
         if (!hasOnlyKeys(req.body, ["email"])) return res.status(400).json({ success: false, message: "Invalid password reset request" });
@@ -140,4 +155,4 @@ const resetPassword = async (req, res, next) => {
         await user.save(); res.json({ success: true, message: "Password reset successfully. You can now log in." });
     } catch (error) { next(error); }
 };
-module.exports = { requestRegistrationOtp, register, login, forgotPassword, validateResetToken, resetPassword, requestDeleteAccountOtp, deleteAccount };
+module.exports = { requestRegistrationOtp, register, login, forgotPassword, validateResetToken, resetPassword, requestDeleteAccountOtp, deleteAccount, completeDashboardTour, publicUser };

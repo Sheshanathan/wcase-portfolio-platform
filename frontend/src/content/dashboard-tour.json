@@ -1,0 +1,40 @@
+{
+  "label": "WCASE QUICK START",
+  "steps": [
+    {
+      "id": "dashboard",
+      "target": "[data-tour-id='dashboard-header']",
+      "placement": "bottom",
+      "title": "Your creator dashboard",
+      "description": "This is your private workspace. From here, you can build, publish, and manage the portfolio recruiters will see."
+    },
+    {
+      "id": "portfolio-setup",
+      "target": "[data-tour-id='portfolio-setup'], [data-tour-id='portfolio-summary']",
+      "placement": "right",
+      "title": "Start with your portfolio",
+      "description": "Create the main page that introduces your work. It stays private until you choose to publish it."
+    },
+    {
+      "id": "portfolio-story",
+      "target": "[data-tour-id='portfolio-story'], [data-tour-id='portfolio-images']",
+      "placement": "right",
+      "title": "Give it a clear story",
+      "description": "Use a focused title and short bio so recruiters quickly understand who you are and the kind of work you do."
+    },
+    {
+      "id": "create-action",
+      "target": "[data-tour-id='portfolio-create-action'], [data-tour-id='add-work']",
+      "placement": "top",
+      "title": "Create, add work, then publish",
+      "description": "After creating the portfolio, you can add images or videos, choose what is public, and share one recruiter-friendly link."
+    },
+    {
+      "id": "account-control",
+      "target": "[data-tour-id='account-settings']",
+      "placement": "top",
+      "title": "You stay in control",
+      "description": "Your dashboard also contains account controls. Never upload confidential, private, or client-restricted material."
+    }
+  ]
+}

@@ -11168,3 +11168,174 @@ html[data-theme="space"] body .public-page .category-filters button[data-state="
     color: var(--wcase-black) !important;
     box-shadow: 0 0 0 3px rgba(247, 198, 68, .2) !important;
 }
+
+/* First-visit homepage tour. Kept fully scoped so app and portfolio UI remain unchanged. */
+.home-tour-backdrop {
+    position: fixed;
+    z-index: 1180;
+    inset: 0;
+    background: rgba(3, 5, 12, .7);
+    backdrop-filter: blur(2px);
+}
+
+.home-page [data-tour-active="true"] {
+    position: relative;
+    z-index: 1190;
+    pointer-events: none;
+    isolation: isolate;
+}
+
+html[data-theme="default"] body .home-page [data-tour-active="true"] {
+    outline: 3px solid var(--wcase-black);
+    outline-offset: 6px;
+    box-shadow: 0 0 0 9px #fff0a8, 0 18px 46px rgba(0, 0, 0, .35) !important;
+}
+
+html[data-theme="space"] body .home-page [data-tour-active="true"] {
+    outline: 3px solid var(--wcase-yellow);
+    outline-offset: 6px;
+    box-shadow: 0 0 0 9px rgba(247, 198, 68, .18), 0 18px 52px rgba(0, 0, 0, .72) !important;
+}
+
+.home-tour-dialog {
+    position: fixed;
+    z-index: 1200;
+    left: clamp(.75rem, 2vw, 1.5rem);
+    display: grid;
+    width: min(28rem, calc(100vw - 1.5rem));
+    gap: .7rem;
+    padding: clamp(1rem, 2.5vw, 1.35rem);
+    border: 2px solid var(--wcase-yellow);
+    border-radius: 1rem;
+    background: #090909;
+    color: #ffffff;
+    box-shadow: 7px 7px 0 rgba(0, 0, 0, .38), 0 18px 55px rgba(0, 0, 0, .38);
+}
+
+.home-tour-dialog[data-placement="top"] {
+    top: clamp(4.25rem, 9vh, 5.5rem);
+}
+
+.home-tour-dialog[data-placement="bottom"] {
+    bottom: clamp(4rem, 9vh, 5.5rem);
+}
+
+.home-tour-dialog:focus {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
+
+.home-tour-progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--wcase-yellow);
+    font-size: .7rem;
+    font-weight: 900;
+    letter-spacing: .11em;
+}
+
+.home-tour-progress {
+    height: .35rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #343434;
+}
+
+.home-tour-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--wcase-yellow);
+    transition: width .2s ease;
+}
+
+.home-tour-dialog h2 {
+    margin: .05rem 0 0;
+    color: var(--wcase-yellow) !important;
+    font-size: clamp(1.2rem, 3vw, 1.55rem);
+    line-height: 1.15;
+}
+
+.home-tour-dialog p {
+    margin: 0;
+    color: #f4f4f5 !important;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.home-tour-actions,
+.home-tour-actions > div {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.home-tour-actions {
+    justify-content: space-between;
+    margin-top: .15rem;
+}
+
+.home-tour-actions button {
+    min-height: 40px;
+    padding: .55rem .85rem;
+    border: 2px solid var(--wcase-yellow);
+    border-radius: .6rem;
+    font-size: .78rem;
+    font-weight: 850;
+}
+
+.home-tour-skip {
+    border-color: transparent !important;
+    background: transparent;
+    color: #d4d4d8;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.home-tour-back {
+    background: transparent;
+    color: var(--wcase-yellow);
+}
+
+.home-tour-next,
+.home-tour-actions button:hover,
+.home-tour-actions button:focus-visible {
+    background: var(--wcase-yellow);
+    color: var(--wcase-black);
+}
+
+.home-tour-actions button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+    .home-tour-dialog {
+        right: .75rem;
+        left: .75rem;
+        width: auto;
+        max-height: calc(100dvh - 8rem);
+        overflow-y: auto;
+    }
+
+    .home-tour-dialog[data-placement="top"] { top: 4rem; }
+    .home-tour-dialog[data-placement="bottom"] { bottom: 3.5rem; }
+
+    .home-tour-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .home-tour-actions > div,
+    .home-tour-actions button {
+        width: 100%;
+    }
+
+    .home-tour-actions > div > button { flex: 1 1 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-tour-progress span { transition: none; }
+}

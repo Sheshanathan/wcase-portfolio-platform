@@ -152,7 +152,7 @@ function Home() {
     };
 
     return (
-        <main className="home-page">
+        <main className="home-page" data-tour-open={tourOpen || undefined}>
             <section className="home-hero">
                 <div className="home-glow home-glow-one" />
                 <div className="home-glow home-glow-two" />

@@ -11185,6 +11185,14 @@ html[data-theme="space"] body .public-page .category-filters button[data-state="
     isolation: isolate;
 }
 
+.home-page[data-tour-open="true"] .home-hero:has(.home-content[data-tour-active="true"], .home-actions[data-tour-active="true"]) {
+    z-index: 1185;
+}
+
+.home-page[data-tour-open="true"] .home-content:has(.home-actions[data-tour-active="true"]) > :not(.home-actions) {
+    opacity: .2;
+}
+
 html[data-theme="default"] body .home-page [data-tour-active="true"] {
     outline: 3px solid var(--wcase-black);
     outline-offset: 6px;
